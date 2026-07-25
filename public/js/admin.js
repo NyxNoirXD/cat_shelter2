@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let adminCats = [];
+let adminApps = [];
 
 // Check session on load
 async function checkAdminAuth() {
@@ -161,7 +162,8 @@ async function fetchApplications() {
     const data = await res.json();
 
     if (data.success) {
-      renderApplicationsTable(data.data);
+      adminApps = data.data;
+      renderApplicationsTable(adminApps);
     }
   } catch (err) {
     console.error('Error fetching applications:', err);
@@ -206,8 +208,14 @@ function renderApplicationsTable(apps) {
   `).join('');
 }
 
-// Update Application Status
+// Update Application Status (optimistic)
 async function updateAppStatus(appId, newStatus) {
+  const app = adminApps.find(a => a.id === appId);
+  if (!app) return;
+  const prevStatus = app.status;
+  app.status = newStatus;
+  renderApplicationsTable(adminApps);
+
   try {
     const res = await fetch(`/api/admin/applications/${appId}`, {
       method: 'PUT',
@@ -218,11 +226,14 @@ async function updateAppStatus(appId, newStatus) {
     if (data.success) {
       showToast(`Application updated to ${newStatus}`, 'success');
       fetchStats();
-      fetchApplications();
     } else {
+      app.status = prevStatus;
+      renderApplicationsTable(adminApps);
       showToast(data.error || 'Failed to update application', 'error');
     }
   } catch (err) {
+    app.status = prevStatus;
+    renderApplicationsTable(adminApps);
     showToast('Failed to update application', 'error');
   }
 }
@@ -326,8 +337,14 @@ async function deleteCat(id) {
   }
 }
 
-// Update Cat Status (inline dropdown)
+// Update Cat Status (inline dropdown, optimistic)
 async function updateCatStatus(id, newStatus) {
+  const cat = adminCats.find(c => c.id === id);
+  if (!cat) return;
+  const prevStatus = cat.status;
+  cat.status = newStatus;
+  renderAdminCatsTable(adminCats);
+
   try {
     const res = await fetch(`/api/cats/${id}/status`, {
       method: 'PATCH',
@@ -337,15 +354,16 @@ async function updateCatStatus(id, newStatus) {
     const data = await res.json();
     if (data.success) {
       showToast(`Status changed to ${newStatus}`, 'success');
-      fetchAdminCats();
       fetchStats();
     } else {
+      cat.status = prevStatus;
+      renderAdminCatsTable(adminCats);
       showToast(data.error || 'Failed to update status', 'error');
-      fetchAdminCats();
     }
   } catch (err) {
+    cat.status = prevStatus;
+    renderAdminCatsTable(adminCats);
     showToast('Failed to update status', 'error');
-    fetchAdminCats();
   }
 }
 
