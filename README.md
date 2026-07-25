@@ -167,10 +167,9 @@ The project auto-detects the `vercel.json` configuration.
 ## Project Structure
 
 ```
-├── app.js                 # Express app factory (async, awaits DB ready)
-├── server.js              # Local dev entry point (calls app.listen)
+├── server.js              # Local dev entry point
 ├── api/
-│   └── index.js           # Vercel serverless entry point
+│   └── index.js           # Express app + Vercel serverless entry
 ├── vercel.json            # Vercel deployment configuration
 ├── .env.example           # Environment variable template
 ├── package.json
