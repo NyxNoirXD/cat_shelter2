@@ -111,7 +111,7 @@ router.put('/applications/:id', verifyAdminToken, (req, res) => {
 router.get('/db', verifyAdminToken, (req, res) => {
   res.json({
     success: true,
-    blobUrl: db.getBlobUrl(),
+    storage: !!process.env.MONGODB_URI ? 'MongoDB' : 'In-Memory',
     data: db.getState(),
   });
 });

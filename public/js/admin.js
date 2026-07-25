@@ -407,13 +407,8 @@ function renderDatabaseView(data) {
     </div>
   `).join('');
 
-  if (data.blobUrl) {
-    document.getElementById('dbBlobUrl').innerHTML = `<i class="fa-solid fa-link"></i> <a href="${escapeHtml(data.blobUrl)}" target="_blank" rel="noopener" style="color: var(--primary-amber);">View in Blob Store</a>`;
-  } else {
-    document.getElementById('dbBlobUrl').innerHTML = '<span style="color: var(--text-muted);">Local file storage</span>';
-  }
+  document.getElementById('dbBlobUrl').innerHTML = `<span style="color: ${data.storage === 'MongoDB' ? 'var(--status-available)' : 'var(--text-muted)'};">${data.storage === 'MongoDB' ? '<i class="fa-solid fa-check-circle"></i> MongoDB' : '<i class="fa-solid fa-database"></i> In-Memory (file-based)'}</span>`;
 
-  // Show first section by default
   switchDbSection('cats');
 }
 
