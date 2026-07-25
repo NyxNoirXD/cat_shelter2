@@ -27,7 +27,7 @@ A full-stack feline adoption platform built with **Node.js**, **Express 5**, and
 | -------------- | ----------------------------------------------------------- |
 | **Runtime**    | Node.js                                                     |
 | **Framework**  | Express 5                                                   |
-| **Database**   | JSON file-based with atomic disk persistence                |
+| **Database**   | JSON file (local) / Vercel KV (production)                  |
 | **Auth**       | JWT + bcryptjs                                              |
 | **Email OTP**  | Bird Verify API (dev mock mode built-in)                    |
 | **Security**   | Helmet, CORS, rate limiting, input validation               |
@@ -70,7 +70,7 @@ Edit `.env`:
 
 > **Dev mock mode**: When `BIRD_API_KEY` is empty, OTP codes are printed to the server console instead of being emailed.
 
-### Run
+### Run (Local)
 
 ```bash
 npm start
@@ -83,6 +83,39 @@ Visit **http://localhost:3000/admin** to access the admin dashboard.
 ### Seed Data
 
 On first run, the app automatically populates 4 cats and 1 admin account (from environment variables). Delete `db/whiskers_db.json` to re-seed.
+
+## Deploy to Vercel
+
+[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+### 1. Provision a KV Database
+
+Vercel KV (Upstash Redis) is required for persistent storage on Vercel. Go to your Vercel project dashboard → **Storage** → **Create a KV Database**. This sets the `KV_REST_API_URL` and `KV_REST_API_TOKEN` environment variables automatically.
+
+### 2. Set Environment Variables
+
+In your Vercel project dashboard → **Settings** → **Environment Variables**, add:
+
+| Variable          | Description                                                                 |
+| ----------------- | --------------------------------------------------------------------------- |
+| `JWT_SECRET`      | Generate with `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
+| `ADMIN_USERNAME`  | Admin username (seeded on first deployment)                                 |
+| `ADMIN_PASSWORD`  | Admin password (seeded on first deployment)                                 |
+| `BIRD_API_KEY`    | Bird Verify API key (leave empty for dev mock — OTPs print to function logs)|
+
+> `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set automatically when you provision KV.
+
+### 3. Deploy
+
+Connect your GitHub repository to Vercel or use the Vercel CLI:
+
+```bash
+npx vercel --prod
+```
+
+The project auto-detects the `vercel.json` configuration.
+
+> **Images**: File uploads via the admin panel use Vercel Blob when available. Provide image URLs as a fallback. Seed cat images (`/uploads/`) are bundled with the static files.
 
 ## API Overview
 
@@ -134,13 +167,17 @@ On first run, the app automatically populates 4 cats and 1 admin account (from e
 ## Project Structure
 
 ```
-├── server.js              # Express entry point
+├── app.js                 # Express app factory (async, awaits DB ready)
+├── server.js              # Local dev entry point (calls app.listen)
+├── api/
+│   └── index.js           # Vercel serverless entry point
+├── vercel.json            # Vercel deployment configuration
 ├── .env.example           # Environment variable template
 ├── package.json
 │
 ├── db/
-│   ├── database.js        # JSON file-based database engine
-│   └── whiskers_db.json   # Persistent data store
+│   ├── database.js        # Database engine (JSON file or Vercel KV)
+│   └── whiskers_db.json   # Persistent data store (local dev only)
 │
 ├── middleware/
 │   └── auth.js            # JWT verification middleware

@@ -9,11 +9,11 @@
       "gender": "Male",
       "status": "Available",
       "image_url": "/uploads/luna.png",
-      "bio": "Oliver is a sweet cat.",
-      "temperament": "Playful",
+      "bio": "Oliver is a sweet, affectionate orange tabby who loves lounging on warm cushions and chasing laser pointers. He gets along wonderfully with people and loves chin scratches.",
+      "temperament": "Playful, Affectionate, Gentle",
       "spayed_neutered": 1,
       "vaccinated": 1,
-      "created_at": "2026-07-24T05:41:12.591Z"
+      "created_at": "2026-07-25T09:34:41.269Z"
     },
     {
       "id": 2,
@@ -28,7 +28,7 @@
       "temperament": "Calm, Quiet, Regal",
       "spayed_neutered": 1,
       "vaccinated": 1,
-      "created_at": "2026-07-24T05:41:12.591Z"
+      "created_at": "2026-07-25T09:34:41.269Z"
     },
     {
       "id": 3,
@@ -43,7 +43,7 @@
       "temperament": "Curious, Energetic, Friendly",
       "spayed_neutered": 1,
       "vaccinated": 1,
-      "created_at": "2026-07-24T05:41:12.591Z"
+      "created_at": "2026-07-25T09:34:41.269Z"
     },
     {
       "id": 4,
@@ -58,124 +58,19 @@
       "temperament": "Loyal, Cuddly, Smart",
       "spayed_neutered": 1,
       "vaccinated": 1,
-      "created_at": "2026-07-24T05:41:12.591Z"
+      "created_at": "2026-07-25T09:34:41.269Z"
     }
   ],
-  "applications": [
-    {
-      "id": 1,
-      "cat_id": 1,
-      "cat_name": "Oliver",
-      "applicant_name": "Jane Doe",
-      "email": "jane@example.com",
-      "phone": "555-0199",
-      "housing_type": "Own House",
-      "experience": "Previous Owner",
-      "message": "I love cats!",
-      "status": "Pending",
-      "submitted_at": "2026-07-24T11:23:26.400Z"
-    },
-    {
-      "id": 2,
-      "cat_id": 4,
-      "cat_name": "Shadow",
-      "applicant_name": "fdsfsf",
-      "email": "sdfsf@fd.com",
-      "phone": "55509090",
-      "housing_type": "Own House",
-      "experience": "Previous Owner",
-      "message": "",
-      "status": "Pending",
-      "submitted_at": "2026-07-24T11:43:24.944Z"
-    },
-    {
-      "id": 3,
-      "cat_id": 4,
-      "cat_name": "Shadow",
-      "applicant_name": "kavindud",
-      "email": "kavindudeshapriya754@gmail.com",
-      "phone": "7674354545",
-      "housing_type": "Own House",
-      "experience": "First Time Owner",
-      "message": "",
-      "status": "Approved",
-      "submitted_at": "2026-07-25T08:23:14.066Z"
-    }
-  ],
+  "applications": [],
   "admins": [
     {
       "id": 1,
       "username": "admin",
-      "password_hash": "$2b$10$8oIFGMpA4Hw2jBP6bhWPUOt99ujAty34OYk/RgYq/TxKoc7xKpPMm",
-      "created_at": "2026-07-24T05:41:12.590Z"
+      "password_hash": "$2b$12$QDQI7lHVfQ.sGehvsD2G8u8KXz/zwSls8zAv96CbftuR8KIjIuEGW",
+      "created_at": "2026-07-25T09:34:41.267Z"
     }
   ],
-  "users": [
-    {
-      "id": 1,
-      "name": "Test User",
-      "email": "tester@bird.com",
-      "password_hash": "$2b$10$h3hkCqb0j11a6gWeKiqfxOwcWPI0HUd/BJqohvIAvZAi8eewpD.zS",
-      "email_verified": true,
-      "otp_hash": null,
-      "otp_expires_at": null,
-      "created_at": "2026-07-24T13:49:45.851Z",
-      "updated_at": "2026-07-24T13:49:46.172Z"
-    },
-    {
-      "id": 2,
-      "email": "nocred@test.com",
-      "password_hash": "$2b$12$cgPqy.GhOrKp1G8Yu2kPQ.FOiahmTw0DuuzuHuuca1L2WdQL0xyHW",
-      "email_verified": true,
-      "created_at": "2026-07-24T16:56:20.855Z"
-    },
-    {
-      "id": 3,
-      "email": "kavindudeshapriya754@gmail.com",
-      "password_hash": "$2b$12$O/e9ysBL2/rJRnbu9U6pHuW1I2eTVFymzW95RTrxXEJ.HDIcG1veG",
-      "email_verified": true,
-      "created_at": "2026-07-25T07:52:08.762Z"
-    }
-  ],
-  "pending_registrations": [
-    {
-      "email": "test@example.com",
-      "password_hash": "$2b$12$hsVMhz1RMTq40wcTh0.cm.1fXkcOSOaeuztN.BJGbAL/sJCyQ5t7a",
-      "expires_at": "2026-07-24T14:30:35.528Z",
-      "created_at": "2026-07-24T14:15:35.528Z"
-    },
-    {
-      "email": "admin@snowluna.eu.org",
-      "expires_at": "2026-07-25T07:41:44.371Z",
-      "created_at": "2026-07-25T07:26:44.371Z"
-    },
-    {
-      "email": "diagnostic@example.com",
-      "expires_at": "2026-07-25T07:49:16.911Z",
-      "created_at": "2026-07-25T07:34:16.912Z"
-    },
-    {
-      "email": "local-check@example.com",
-      "expires_at": "2026-07-25T07:51:28.862Z",
-      "created_at": "2026-07-25T07:36:28.863Z"
-    }
-  ],
-  "contact_inquiries": [
-    {
-      "id": 1,
-      "name": "Jane Doe",
-      "email": "jane@test.com",
-      "subject": "Adoption Question",
-      "message": "I want to adopt Oliver!",
-      "created_at": "2026-07-24T17:28:22.932Z"
-    },
-    {
-      "id": 2,
-      "name": "jaen",
-      "email": "fdfdfdf@fdfd.com",
-      "subject": "General Inquiry",
-      "message": "fdfdfdf",
-      "created_at": "2026-07-24T17:58:46.889Z"
-    }
-  ]
+  "users": [],
+  "pending_registrations": [],
+  "contact_inquiries": []
 }

@@ -4,7 +4,23 @@ const bcrypt = require('bcryptjs');
 
 const dbFilePath = path.join(__dirname, 'whiskers_db.json');
 
-// In-Memory state backed by JSON file persistence
+let kv = null;
+try {
+  const { createClient } = require('@vercel/kv');
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    kv = createClient({
+      url: process.env.KV_REST_API_URL,
+      token: process.env.KV_REST_API_TOKEN,
+    });
+  }
+} catch {
+  // @vercel/kv not installed — use file-based storage
+}
+
+const USE_KV = !!kv;
+const KV_KEY = 'whiskers_db_state';
+
+// In-Memory state backed by JSON file or KV persistence
 let state = {
   cats: [],
   applications: [],
@@ -14,8 +30,59 @@ let state = {
   contact_inquiries: []
 };
 
-// Save state to disk atomically
-function saveState() {
+let _ready = null;
+
+function ready() {
+  if (!_ready) {
+    _ready = init();
+  }
+  return _ready;
+}
+
+async function init() {
+  if (USE_KV) {
+    try {
+      const raw = await kv.get(KV_KEY);
+      if (raw) {
+        state = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      }
+      if (!state.admins) state.admins = [];
+      if (!state.users) state.users = [];
+      if (!state.pending_registrations) state.pending_registrations = [];
+      if (!state.contact_inquiries) state.contact_inquiries = [];
+      if (!state.cats || state.cats.length === 0) {
+        seedAdmin();
+        seedCats();
+        await persistToKv();
+      } else if (!state.admins || state.admins.length === 0) {
+        seedAdmin();
+        await persistToKv();
+      }
+    } catch (err) {
+      console.error('KV init error, falling back to empty state:', err.message);
+    }
+  } else {
+    loadStateSync();
+  }
+}
+
+async function persistToKv() {
+  if (!USE_KV) return;
+  try {
+    await kv.set(KV_KEY, JSON.stringify(state));
+  } catch (err) {
+    console.error('KV persist error:', err.message);
+  }
+}
+
+function persistToKvFireAndForget() {
+  if (!USE_KV) return;
+  persistToKv().catch(err => console.error('KV persist error:', err.message));
+}
+
+// Save state to disk atomically (file-based only)
+function saveStateSync() {
+  if (USE_KV) return;
   try {
     const tempPath = dbFilePath + '.tmp';
     fs.writeFileSync(tempPath, JSON.stringify(state, null, 2), 'utf8');
@@ -25,8 +92,8 @@ function saveState() {
   }
 }
 
-// Load state from disk
-function loadState() {
+// Load state from disk (file-based only)
+function loadStateSync() {
   try {
     if (fs.existsSync(dbFilePath)) {
       const data = fs.readFileSync(dbFilePath, 'utf8');
@@ -39,91 +106,106 @@ function loadState() {
     console.error('Error reading database file, starting clean:', err);
   }
 
-  // Seed default Admin if not existing
   if (!state.admins || state.admins.length === 0) {
-    const defaultUser = process.env.ADMIN_USERNAME;
-    const defaultPass = process.env.ADMIN_PASSWORD;
-    if (!defaultUser || !defaultPass) {
+    seedAdmin();
+  }
+
+  if (!state.cats || state.cats.length === 0) {
+    seedCats();
+  }
+}
+
+function seedAdmin() {
+  const defaultUser = process.env.ADMIN_USERNAME;
+  const defaultPass = process.env.ADMIN_PASSWORD;
+  if (!defaultUser || !defaultPass) {
+    if (!USE_KV) {
       console.error('FATAL: ADMIN_USERNAME and ADMIN_PASSWORD environment variables must be set for first run.');
       console.error('Add them to your .env file, then delete db/whiskers_db.json and restart.');
       process.exit(1);
     }
-    const hash = bcrypt.hashSync(defaultPass, 12);
-    state.admins = [{ id: 1, username: defaultUser, password_hash: hash, created_at: new Date().toISOString() }];
-    saveState();
-    console.log(`Admin account created for: ${defaultUser}`);
+    return;
   }
-
-  // Seed default Cats if not existing
-  if (!state.cats || state.cats.length === 0) {
-    state.cats = [
-      {
-        id: 1,
-        name: 'Oliver',
-        breed: 'Orange Tabby',
-        age: 2,
-        age_group: 'Young',
-        gender: 'Male',
-        status: 'Available',
-        image_url: '/uploads/luna.png',
-        bio: 'Oliver is a sweet, affectionate orange tabby who loves lounging on warm cushions and chasing laser pointers. He gets along wonderfully with people and loves chin scratches.',
-        temperament: 'Playful, Affectionate, Gentle',
-        spayed_neutered: 1,
-        vaccinated: 1,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 2,
-        name: 'Snowball',
-        breed: 'Persian',
-        age: 3,
-        age_group: 'Adult',
-        gender: 'Female',
-        status: 'Available',
-        image_url: '/uploads/milo.png',
-        bio: 'Snowball is a fluffy, regal Persian beauty with ocean-blue eyes. She thrives in calm environments, enjoys soft grooming sessions, and loves being pampered.',
-        temperament: 'Calm, Quiet, Regal',
-        spayed_neutered: 1,
-        vaccinated: 1,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 3,
-        name: 'Cleo',
-        breed: 'Calico',
-        age: 1,
-        age_group: 'Young',
-        gender: 'Female',
-        status: 'Available',
-        image_url: '/uploads/cleo.png',
-        bio: 'Cleo is a curious and energetic Calico explorer. She loves windowsill bird-watching, climbing cat trees, and making cute chirping sounds when excited.',
-        temperament: 'Curious, Energetic, Friendly',
-        spayed_neutered: 1,
-        vaccinated: 1,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 4,
-        name: 'Shadow',
-        breed: 'Domestic Shorthair',
-        age: 4,
-        age_group: 'Adult',
-        gender: 'Male',
-        status: 'Available',
-        image_url: '/uploads/shadow.png',
-        bio: 'Shadow is a sleek black panther cat with glowing amber eyes. He is extremely loyal, loves lap cuddles during movie nights, and gets along great with other pets.',
-        temperament: 'Loyal, Cuddly, Smart',
-        spayed_neutered: 1,
-        vaccinated: 1,
-        created_at: new Date().toISOString()
-      }
-    ];
-    saveState();
-    console.log('Default feline profiles seeded.');
-  }
+  const hash = bcrypt.hashSync(defaultPass, 12);
+  state.admins = [{ id: 1, username: defaultUser, password_hash: hash, created_at: new Date().toISOString() }];
+  if (!USE_KV) saveStateSync();
+  console.log(`Admin account created for: ${defaultUser}`);
 }
 
-loadState();
+function seedCats() {
+  state.cats = [
+    {
+      id: 1,
+      name: 'Oliver',
+      breed: 'Orange Tabby',
+      age: 2,
+      age_group: 'Young',
+      gender: 'Male',
+      status: 'Available',
+      image_url: '/uploads/luna.png',
+      bio: 'Oliver is a sweet, affectionate orange tabby who loves lounging on warm cushions and chasing laser pointers. He gets along wonderfully with people and loves chin scratches.',
+      temperament: 'Playful, Affectionate, Gentle',
+      spayed_neutered: 1,
+      vaccinated: 1,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 2,
+      name: 'Snowball',
+      breed: 'Persian',
+      age: 3,
+      age_group: 'Adult',
+      gender: 'Female',
+      status: 'Available',
+      image_url: '/uploads/milo.png',
+      bio: 'Snowball is a fluffy, regal Persian beauty with ocean-blue eyes. She thrives in calm environments, enjoys soft grooming sessions, and loves being pampered.',
+      temperament: 'Calm, Quiet, Regal',
+      spayed_neutered: 1,
+      vaccinated: 1,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 3,
+      name: 'Cleo',
+      breed: 'Calico',
+      age: 1,
+      age_group: 'Young',
+      gender: 'Female',
+      status: 'Available',
+      image_url: '/uploads/cleo.png',
+      bio: 'Cleo is a curious and energetic Calico explorer. She loves windowsill bird-watching, climbing cat trees, and making cute chirping sounds when excited.',
+      temperament: 'Curious, Energetic, Friendly',
+      spayed_neutered: 1,
+      vaccinated: 1,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 4,
+      name: 'Shadow',
+      breed: 'Domestic Shorthair',
+      age: 4,
+      age_group: 'Adult',
+      gender: 'Male',
+      status: 'Available',
+      image_url: '/uploads/shadow.png',
+      bio: 'Shadow is a sleek black panther cat with glowing amber eyes. He is extremely loyal, loves lap cuddles during movie nights, and gets along great with other pets.',
+      temperament: 'Loyal, Cuddly, Smart',
+      spayed_neutered: 1,
+      vaccinated: 1,
+      created_at: new Date().toISOString()
+    }
+  ];
+  if (!USE_KV) saveStateSync();
+  console.log('Default feline profiles seeded.');
+}
+
+function persist() {
+  if (USE_KV) {
+    persistToKvFireAndForget();
+  } else {
+    saveStateSync();
+  }
+}
 
 // Database compatibility API layer
 const db = {
@@ -233,7 +315,7 @@ const db = {
           created_at: new Date().toISOString()
         };
         state.cats.push(newCat);
-        saveState();
+        persist();
         if (callback) callback.call({ lastID: newId }, null);
         return;
       }
@@ -257,7 +339,7 @@ const db = {
             spayed_neutered: parseInt(params[9]),
             vaccinated: parseInt(params[10])
           };
-          saveState();
+          persist();
         }
         if (callback) callback.call({ changes: idx !== -1 ? 1 : 0 }, null);
         return;
@@ -268,7 +350,7 @@ const db = {
         const catId = parseInt(params[0]);
         const initialLen = state.cats.length;
         state.cats = state.cats.filter(c => c.id !== catId);
-        saveState();
+        persist();
         const changes = initialLen - state.cats.length;
         if (callback) callback.call({ changes }, null);
         return;
@@ -291,7 +373,7 @@ const db = {
           submitted_at: new Date().toISOString()
         };
         state.applications.push(newApp);
-        saveState();
+        persist();
         if (callback) callback.call({ lastID: newId }, null);
         return;
       }
@@ -302,7 +384,7 @@ const db = {
         const app = state.applications.find(a => a.id === appId);
         if (app) {
           app.status = params[0];
-          saveState();
+          persist();
         }
         if (callback) callback.call({ changes: app ? 1 : 0 }, null);
         return;
@@ -343,7 +425,7 @@ function upsertPendingRegistration(record) {
     expires_at: record.expires_at,
     created_at: new Date().toISOString()
   });
-  saveState();
+  persist();
   return Promise.resolve();
 }
 
@@ -352,7 +434,7 @@ function deletePendingRegistration(email) {
   const before = state.pending_registrations.length;
   state.pending_registrations = state.pending_registrations.filter(p => p.email !== normalized);
   if (state.pending_registrations.length !== before) {
-    saveState();
+    persist();
   }
   return Promise.resolve();
 }
@@ -371,7 +453,7 @@ function createUser({ email, password_hash, email_verified }) {
     created_at: new Date().toISOString()
   };
   state.users.push(user);
-  saveState();
+  persist();
   return Promise.resolve({ ...user });
 }
 
@@ -379,7 +461,7 @@ function updateCatStatus(catId, status) {
   const idx = state.cats.findIndex(c => c.id === catId);
   if (idx === -1) return false;
   state.cats[idx].status = status;
-  saveState();
+  persist();
   return true;
 }
 
@@ -393,10 +475,11 @@ function addContactInquiry({ name, email, subject, message }) {
     created_at: new Date().toISOString()
   };
   state.contact_inquiries.push(inquiry);
-  saveState();
+  persist();
 }
 
 module.exports = db;
+module.exports.ready = ready;
 module.exports.findUserByEmail = findUserByEmail;
 module.exports.findApplicationsByEmail = findApplicationsByEmail;
 module.exports.getPendingRegistration = getPendingRegistration;
