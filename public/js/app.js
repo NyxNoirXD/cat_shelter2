@@ -3,7 +3,9 @@
 document.addEventListener('DOMContentLoaded', () => {
   fetchCats();
   setupEventListeners();
-  loadCurrentUser();
+  loadCurrentUser().then(() => {
+    if (allCats.length > 0 && currentUser) applyUserAppsToCards();
+  });
 
   const modal = document.getElementById('catDetailModal');
   modal?.addEventListener('click', (event) => {
@@ -17,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let allCats = [];
 let currentUser = null;
+let userApplications = {};
 
 async function loadCurrentUser() {
   try {
@@ -26,10 +29,30 @@ async function loadCurrentUser() {
     if (data.success) {
       currentUser = data.user;
       updateAdoptionContact();
+      await loadUserApplications();
     }
   } catch {
     // Visitors can still submit as guests with an email address.
   }
+}
+
+async function loadUserApplications() {
+  if (!currentUser) { userApplications = {}; return; }
+  try {
+    const res = await fetch('/api/auth/applications', { credentials: 'include' });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.success) {
+      userApplications = {};
+      data.data.forEach(app => {
+        userApplications[app.cat_id] = app;
+      });
+    }
+  } catch {}
+}
+
+function applyUserAppsToCards() {
+  if (allCats.length > 0) renderCats(allCats);
 }
 
 function updateAdoptionContact() {
@@ -78,6 +101,7 @@ async function fetchCats() {
       allCats = data.data;
       renderCats(allCats);
       updateHeroStats(allCats);
+      if (currentUser) applyUserAppsToCards();
     }
   } catch (err) {
     console.error('Error fetching cats:', err);
@@ -108,6 +132,8 @@ function renderCats(cats) {
     const isSpayed = cat.spayed_neutered === 1 || cat.spayed_neutered === '1' || cat.spayed_neutered === true;
     const isVaccinated = cat.vaccinated === 1 || cat.vaccinated === '1' || cat.vaccinated === true;
     const status = ['Available', 'Pending', 'Adopted'].includes(cat.status) ? cat.status : 'Available';
+    const myApp = userApplications[cat.id];
+    const statusColors = { Pending: 'var(--status-pending)', Approved: 'var(--status-available)', Rejected: '#E76F51' };
 
     return `
     <div class="cat-card" style="animation-delay: ${index * 70}ms;">
@@ -131,9 +157,15 @@ function renderCats(cats) {
         </div>
         <p class="cat-bio-snippet">${escapeHtml(cat.bio)}</p>
         <div class="cat-card-footer">
-          <button class="btn-primary" onclick="openCatModal(${cat.id})">
-            <i class="fa-solid fa-heart"></i> ${status === 'Available' ? 'Adopt Me' : 'View Profile'}
-          </button>
+          ${myApp ? `
+            <button class="btn-primary" style="background: ${statusColors[myApp.status] || 'var(--primary-amber)'};" onclick="openCatModal(${cat.id})">
+              <i class="fa-solid fa-${myApp.status === 'Approved' ? 'check' : myApp.status === 'Rejected' ? 'xmark' : 'clock'}"></i> ${escapeHtml(myApp.status)}
+            </button>
+          ` : `
+            <button class="btn-primary" onclick="openCatModal(${cat.id})">
+              <i class="fa-solid fa-heart"></i> ${status === 'Available' ? 'Adopt Me' : 'View Profile'}
+            </button>
+          `}
         </div>
       </div>
     </div>
@@ -184,17 +216,48 @@ function openCatModal(catId) {
   const availabilityNotice = document.getElementById('modalAvailabilityNotice');
   const adoptionHeading = document.getElementById('adoptionFormHeading');
   const adoptionForm = document.getElementById('adoptionForm');
+  const appStatusContainer = document.getElementById('applicationStatusContainer');
   const isAvailable = cat.status === 'Available';
+  const myApp = userApplications[cat.id];
 
-  if (availabilityNotice) {
-    availabilityNotice.hidden = isAvailable;
-    availabilityNotice.innerHTML = isAvailable
-      ? ''
-      : `<i class="fa-solid fa-clock"></i><span>${escapeHtml(cat.name)} is ${escapeHtml(cat.status.toLowerCase())} right now. You can still view their profile and check back soon.</span>`;
+  if (myApp) {
+    availabilityNotice.hidden = true;
+    adoptionHeading.hidden = true;
+    adoptionForm.hidden = true;
+    appStatusContainer.hidden = false;
+    const statusColors = { Pending: 'var(--status-pending)', Approved: 'var(--status-available)', Rejected: '#E76F51' };
+    const statusIcons = { Pending: 'fa-clock', Approved: 'fa-circle-check', Rejected: 'fa-circle-xmark' };
+    const submittedAt = new Date(myApp.submitted_at).toLocaleDateString();
+    appStatusContainer.innerHTML = `
+      <div style="text-align:center;padding:1.5rem;background:var(--bg-elevated);border-radius:var(--radius-md);">
+        <i class="fa-solid ${statusIcons[myApp.status] || 'fa-clock'}" style="font-size:2.5rem;color:${statusColors[myApp.status] || 'var(--text-muted)'};margin-bottom:0.75rem;"></i>
+        <h3 style="font-size:1.3rem;">Application ${escapeHtml(myApp.status)}</h3>
+        <p style="color:var(--text-muted);margin-top:0.5rem;">
+          Your adoption request for <strong>${escapeHtml(cat.name)}</strong> was submitted on ${submittedAt}.
+        </p>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.5rem;">
+          ${myApp.status === 'Pending' ? 'Our team is reviewing your application. We\'ll reach out soon.' :
+            myApp.status === 'Approved' ? 'Great news! Your application has been approved. Please check your email for next steps.' :
+            'Unfortunately your application was not approved at this time. You\'re welcome to apply for another cat.'}
+        </p>
+        <a href="/login" style="display:inline-block;margin-top:1rem;color:var(--primary-amber);text-decoration:none;font-weight:600;">
+          <i class="fa-solid fa-arrow-right"></i> View all my applications
+        </a>
+      </div>
+    `;
+  } else if (!isAvailable) {
+    availabilityNotice.hidden = false;
+    adoptionHeading.hidden = true;
+    adoptionForm.hidden = true;
+    appStatusContainer.hidden = true;
+    availabilityNotice.innerHTML = `<i class="fa-solid fa-clock"></i><span>${escapeHtml(cat.name)} is ${escapeHtml(cat.status.toLowerCase())} right now. You can still view their profile and check back soon.</span>`;
+  } else {
+    availabilityNotice.hidden = true;
+    adoptionHeading.hidden = false;
+    adoptionForm.hidden = false;
+    appStatusContainer.hidden = true;
+    updateAdoptionContact();
   }
-  if (adoptionHeading) adoptionHeading.hidden = !isAvailable;
-  if (adoptionForm) adoptionForm.hidden = !isAvailable;
-  updateAdoptionContact();
 
   // Dynamic Health Pills
   const spayedPill = document.getElementById('modalSpayedPill');

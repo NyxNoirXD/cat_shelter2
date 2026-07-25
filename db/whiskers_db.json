@@ -145,7 +145,21 @@
       "microchip": null
     }
   ],
-  "applications": [],
+  "applications": [
+    {
+      "id": 1,
+      "cat_id": 1,
+      "cat_name": "Oliver",
+      "applicant_name": "Test User",
+      "email": "test@example.com",
+      "phone": "555-0000",
+      "housing_type": "Own House",
+      "experience": "Current Pet Owner",
+      "message": "Test",
+      "status": "Pending",
+      "submitted_at": "2026-07-25T17:34:59.760Z"
+    }
+  ],
   "admins": [
     {
       "id": 1,
