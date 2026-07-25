@@ -7,10 +7,17 @@ const cors = require('cors');
 require('dotenv').config({ quiet: true });
 const db = require('../db/database');
 
-// Initialize database (sync for file, kicks off async for Vercel Blob)
-db.ready().catch(err => console.error('DB init error:', err));
-
 const app = express();
+
+// Wait for database init before handling requests (prevents race condition)
+app.use(async (req, res, next) => {
+  try {
+    await db.ready();
+  } catch (err) {
+    console.error('DB init error:', err);
+  }
+  next();
+});
 
 // Security Middlewares
 app.use(helmet({ contentSecurityPolicy: false }));

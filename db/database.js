@@ -41,26 +41,35 @@ async function init() {
       const { blobs } = await list({ prefix: BLOB_KEY, limit: 1 });
       if (blobs.length > 0) {
         _blobUrl = blobs[0].url;
-        const res = await fetch(_blobUrl);
+        const res = await fetch(blobs[0].downloadUrl);
         if (res.ok) {
           const raw = await res.text();
-          state = JSON.parse(raw);
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            state = parsed;
+          }
         }
       }
       if (!state.admins) state.admins = [];
       if (!state.users) state.users = [];
       if (!state.pending_registrations) state.pending_registrations = [];
       if (!state.contact_inquiries) state.contact_inquiries = [];
-      if (!state.cats || state.cats.length === 0) {
+      if (!state.admins || state.admins.length === 0) {
         seedAdmin();
-        seedCats();
         await persistToBlob();
-      } else if (!state.admins || state.admins.length === 0) {
-        seedAdmin();
+      }
+      if (!state.cats || state.cats.length === 0) {
+        seedCats();
         await persistToBlob();
       }
     } catch (err) {
       console.error('Blob init error, falling back to empty state:', err.message);
+      if (!state.admins || state.admins.length === 0) {
+        seedAdmin();
+      }
+      if (!state.cats || state.cats.length === 0) {
+        seedCats();
+      }
     }
   } else {
     loadStateSync();
@@ -72,8 +81,9 @@ async function persistToBlob() {
   try {
     const { put } = blobClient;
     const blob = await put(BLOB_KEY, JSON.stringify(state), {
-      access: 'public',
+      access: 'private',
       addRandomSuffix: false,
+      contentType: 'application/json',
     });
     _blobUrl = blob.url;
   } catch (err) {
@@ -484,6 +494,14 @@ function addContactInquiry({ name, email, subject, message }) {
   persist();
 }
 
+function getState() {
+  return state;
+}
+
+function getBlobUrl() {
+  return _blobUrl;
+}
+
 module.exports = db;
 module.exports.ready = ready;
 module.exports.findUserByEmail = findUserByEmail;
@@ -494,3 +512,5 @@ module.exports.deletePendingRegistration = deletePendingRegistration;
 module.exports.createUser = createUser;
 module.exports.updateCatStatus = updateCatStatus;
 module.exports.addContactInquiry = addContactInquiry;
+module.exports.getState = getState;
+module.exports.getBlobUrl = getBlobUrl;

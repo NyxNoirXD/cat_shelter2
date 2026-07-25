@@ -107,4 +107,13 @@ router.put('/applications/:id', verifyAdminToken, (req, res) => {
   });
 });
 
+// GET /api/admin/db - View raw database state
+router.get('/db', verifyAdminToken, (req, res) => {
+  res.json({
+    success: true,
+    blobUrl: db.getBlobUrl(),
+    data: db.getState(),
+  });
+});
+
 module.exports = router;

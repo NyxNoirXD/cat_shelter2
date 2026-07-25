@@ -345,22 +345,125 @@ async function updateCatStatus(id, newStatus) {
 
 // Tab Switching
 function switchTab(tab) {
-  const catsTab = document.getElementById('catsTabSection');
-  const appsTab = document.getElementById('appsTabSection');
-  const tabCatsBtn = document.getElementById('tabCatsBtn');
-  const tabAppsBtn = document.getElementById('tabAppsBtn');
+  const sections = {
+    cats: document.getElementById('catsTabSection'),
+    applications: document.getElementById('appsTabSection'),
+    database: document.getElementById('dbTabSection'),
+  };
+  const buttons = {
+    cats: document.getElementById('tabCatsBtn'),
+    applications: document.getElementById('tabAppsBtn'),
+    database: document.getElementById('tabDbBtn'),
+  };
 
-  if (tab === 'cats') {
-    catsTab.style.display = 'block';
-    appsTab.style.display = 'none';
-    tabCatsBtn.classList.add('active');
-    tabAppsBtn.classList.remove('active');
-  } else {
-    catsTab.style.display = 'none';
-    appsTab.style.display = 'block';
-    tabCatsBtn.classList.remove('active');
-    tabAppsBtn.classList.add('active');
+  for (const [key, el] of Object.entries(sections)) {
+    if (el) el.style.display = key === tab ? 'block' : 'none';
   }
+  for (const [key, el] of Object.entries(buttons)) {
+    if (el) {
+      if (key === tab) el.classList.add('active');
+      else el.classList.remove('active');
+    }
+  }
+
+  if (tab === 'database') {
+    fetchDatabaseView();
+  }
+}
+
+// Database Viewer
+let dbState = null;
+
+async function fetchDatabaseView() {
+  const content = document.getElementById('dbSectionContent');
+  if (!content) return;
+  content.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">Loading database...</p>';
+
+  try {
+    const res = await fetch('/api/admin/db');
+    const data = await res.json();
+    if (data.success) {
+      dbState = data.data;
+      renderDatabaseView(data);
+    } else {
+      content.innerHTML = '<p style="color: #E76F51; text-align: center; padding: 2rem;">Failed to load database.</p>';
+    }
+  } catch (err) {
+    content.innerHTML = '<p style="color: #E76F51; text-align: center; padding: 2rem;">Error loading database.</p>';
+  }
+}
+
+function renderDatabaseView(data) {
+  const state = data.data;
+  const cards = document.getElementById('dbSummaryCards');
+  const sections = ['cats', 'applications', 'users', 'admins', 'contact_inquiries', 'pending_registrations'];
+  const labels = ['Cats', 'Applications', 'Users', 'Admins', 'Contact Inquiries', 'Pending Regs'];
+  const icons = ['fa-cat', 'fa-file-signature', 'fa-users', 'fa-user-shield', 'fa-envelope', 'fa-clock'];
+
+  cards.innerHTML = sections.map((s, i) => `
+    <div class="db-card">
+      <h4><i class="fa-solid ${icons[i]}"></i> ${labels[i]}</h4>
+      <div>${(state[s] || []).length}</div>
+    </div>
+  `).join('');
+
+  if (data.blobUrl) {
+    document.getElementById('dbBlobUrl').innerHTML = `<i class="fa-solid fa-link"></i> <a href="${escapeHtml(data.blobUrl)}" target="_blank" rel="noopener" style="color: var(--primary-amber);">View in Blob Store</a>`;
+  } else {
+    document.getElementById('dbBlobUrl').innerHTML = '<span style="color: var(--text-muted);">Local file storage</span>';
+  }
+
+  // Show first section by default
+  switchDbSection('cats');
+}
+
+function switchDbSection(section) {
+  const buttons = document.querySelectorAll('#dbSectionSelector .tab-btn');
+  buttons.forEach(btn => {
+    if (btn.dataset.section === section) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+
+  const items = dbState ? (dbState[section] || []) : [];
+  renderDbSection(section, items);
+}
+
+function renderDbSection(section, items) {
+  const content = document.getElementById('dbSectionContent');
+  if (!content) return;
+
+  if (items.length === 0) {
+    content.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No ${section} found.</p>`;
+    return;
+  }
+
+  const keys = Object.keys(items[0]);
+  let html = '';
+  items.forEach((item, idx) => {
+    html += `<div style="margin-bottom: 0.8rem; background: var(--bg-elevated); border-radius: var(--radius-sm); padding: 0.8rem 1rem;">`;
+    html += `<div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;">#${idx + 1}</div>`;
+    keys.forEach(key => {
+      let val = item[key];
+      let displayVal;
+      if (key === 'password_hash') {
+        displayVal = '•••• (hidden)';
+      } else if (key === 'image_url' && val) {
+        displayVal = `<img src="${escapeHtml(String(val))}" style="width:40px;height:40px;border-radius:4px;object-fit:cover;vertical-align:middle;" onerror="this.style.display='none'"> ${escapeHtml(String(val))}`;
+      } else if (val === null || val === undefined) {
+        displayVal = '<em style="color:var(--text-muted)">null</em>';
+      } else {
+        displayVal = escapeHtml(String(val));
+      }
+      html += `<div class="db-row"><span class="db-key">${escapeHtml(key)}</span><span class="db-value">${displayVal}</span></div>`;
+    });
+    html += `</div>`;
+  });
+
+  content.innerHTML = html;
+}
+
+function refreshDatabaseView() {
+  fetchDatabaseView();
 }
 
 // Toast Helper

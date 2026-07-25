@@ -95,6 +95,44 @@
       display: flex;
       gap: 0.5rem;
     }
+    .db-key {
+      font-weight: 700;
+      color: var(--primary-amber);
+      min-width: 180px;
+      display: inline-block;
+    }
+    .db-value {
+      color: var(--text-main);
+      word-break: break-word;
+    }
+    .db-row {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(44,26,29,0.06);
+      display: flex;
+      gap: 0.5rem;
+    }
+    .db-row:last-child {
+      border-bottom: none;
+    }
+    .db-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      border: 1px solid rgba(44,26,29,0.08);
+      text-align: center;
+    }
+    .db-card h4 {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 0.3rem;
+    }
+    .db-card div {
+      font-size: 1.5rem;
+      font-family: 'Fredoka', cursive;
+      color: var(--primary-amber);
+    }
   </style>
 </head>
 <body>
@@ -178,7 +216,8 @@
     <!-- Navigation Tabs -->
     <div class="admin-nav-tabs">
       <button class="tab-btn active" id="tabCatsBtn" onclick="switchTab('cats')"><i class="fa-solid fa-cat"></i> Cat Listings</button>
-      <button class="tab-btn" id="tabAppsBtn" onclick="switchTab('applications')"><i class="fa-solid fa-file-signature"></i> Adoption Applications</button>
+      <button class="tab-btn" id="tabAppsBtn" onclick="switchTab('applications')"><i class="fa-solid fa-file-signature"></i> Applications</button>
+      <button class="tab-btn" id="tabDbBtn" onclick="switchTab('database')"><i class="fa-solid fa-database"></i> Database</button>
     </div>
 
     <!-- Tab 1: Cat Management Table -->
@@ -222,6 +261,35 @@
             <!-- Rendered by admin.js -->
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Tab 3: Database Viewer -->
+    <div id="dbTabSection" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="font-family: 'Fredoka', cursive;"><i class="fa-solid fa-database"></i> Database State</h3>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <span id="dbBlobUrl" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+          <button class="btn-secondary" onclick="refreshDatabaseView()" style="padding: 0.5rem 1rem;">
+            <i class="fa-solid fa-rotate"></i> Refresh
+          </button>
+        </div>
+      </div>
+      <div id="dbSummaryCards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; margin-bottom: 1.2rem;"></div>
+      <div class="admin-table-wrapper">
+        <div id="dbTableView" style="padding: 0;">
+          <div id="dbSectionSelector" style="display: flex; gap: 0.5rem; padding: 1rem; border-bottom: 1px solid rgba(44,26,29,0.08); flex-wrap: wrap;">
+            <button class="tab-btn active" data-section="cats" onclick="switchDbSection('cats')"><i class="fa-solid fa-cat"></i> Cats</button>
+            <button class="tab-btn" data-section="applications" onclick="switchDbSection('applications')"><i class="fa-solid fa-file-signature"></i> Applications</button>
+            <button class="tab-btn" data-section="users" onclick="switchDbSection('users')"><i class="fa-solid fa-users"></i> Users</button>
+            <button class="tab-btn" data-section="admins" onclick="switchDbSection('admins')"><i class="fa-solid fa-user-shield"></i> Admins</button>
+            <button class="tab-btn" data-section="contact_inquiries" onclick="switchDbSection('contact_inquiries')"><i class="fa-solid fa-envelope"></i> Inquiries</button>
+            <button class="tab-btn" data-section="pending_registrations" onclick="switchDbSection('pending_registrations')"><i class="fa-solid fa-clock"></i> Pending Regs</button>
+          </div>
+          <div id="dbSectionContent" style="padding: 1rem; max-height: 600px; overflow-y: auto;">
+            <p style="color: var(--text-muted); text-align: center; padding: 2rem;">Loading database...</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
