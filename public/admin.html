@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Whiskers & Haven</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+    .admin-header {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 1.5rem 2rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(44, 26, 29, 0.08);
+    }
+    .admin-nav-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid rgba(44, 26, 29, 0.08);
+      padding-bottom: 0.5rem;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      font-family: 'Fredoka', cursive;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-pill);
+      transition: all var(--transition-fast);
+    }
+    .tab-btn.active, .tab-btn:hover {
+      color: var(--primary-amber);
+      background: var(--primary-soft);
+    }
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 1.2rem 1.5rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(44, 26, 29, 0.06);
+    }
+    .stat-card h4 { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card div { font-size: 1.8rem; font-family: 'Fredoka', cursive; color: var(--primary-amber); }
+
+    /* Admin Tables */
+    .admin-table-wrapper {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(44, 26, 29, 0.08);
+    }
+    table.admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    table.admin-table th, table.admin-table td {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid rgba(44, 26, 29, 0.06);
+      vertical-align: middle;
+    }
+    table.admin-table th {
+      background: var(--bg-elevated);
+      font-family: 'Fredoka', cursive;
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+    .table-thumb {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+    }
+    .actions-cell {
+      display: flex;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="brand-icon"><i class="fa-solid fa-user-shield"></i></div>
+      <div class="brand-title">Admin <span>Dashboard</span></div>
+    </a>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <a href="/" class="btn-secondary"><i class="fa-solid fa-globe"></i> Main Site</a>
+      <button class="btn-danger" id="logoutBtn" onclick="handleAdminLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </div>
+  </header>
+
+  <!-- Login Modal Overlay (Visible if not authenticated) -->
+  <div class="modal-overlay active" id="loginModal" style="z-index: 5000;">
+    <div class="modal-container" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.4rem;"><i class="fa-solid fa-lock" style="color: var(--primary-amber);"></i> Staff Authentication</h3>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+          Please enter admin credentials to access the feline management portal.
+        </p>
+        <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+          <div class="form-group">
+            <label for="adminUsername">Username</label>
+            <input type="text" id="adminUsername" class="form-control" value="admin" required>
+          </div>
+          <div class="form-group">
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" class="form-control" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; margin-top: 1rem;">
+            <i class="fa-solid fa-key"></i> Authenticate & Login
+          </button>
+        </form>
+        <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+          Use the staff credentials configured for this shelter.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Main Dashboard Content -->
+  <div class="admin-container">
+    <!-- Admin Info Header Bar -->
+    <div class="admin-header">
+      <div>
+        <h2 style="font-size: 1.8rem;">Shelter Control Center</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Manage feline listings, add new rescues, and review adoption applications.</p>
+      </div>
+      <button class="btn-primary" onclick="openCatFormModal()"><i class="fa-solid fa-plus"></i> Add New Cat</button>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <h4>Total Felines</h4>
+        <div id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <h4>Available for Adoption</h4>
+        <div id="statAvailable" style="color: var(--status-available);">0</div>
+      </div>
+      <div class="stat-card">
+        <h4>Pending Approval</h4>
+        <div id="statPending" style="color: var(--status-pending);">0</div>
+      </div>
+      <div class="stat-card">
+        <h4>Adopted Homes</h4>
+        <div id="statAdopted" style="color: var(--status-adopted);">0</div>
+      </div>
+      <div class="stat-card">
+        <h4>Inquiries Received</h4>
+        <div id="statApps">0</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="admin-nav-tabs">
+      <button class="tab-btn active" id="tabCatsBtn" onclick="switchTab('cats')"><i class="fa-solid fa-cat"></i> Cat Listings</button>
+      <button class="tab-btn" id="tabAppsBtn" onclick="switchTab('applications')"><i class="fa-solid fa-file-signature"></i> Adoption Applications</button>
+    </div>
+
+    <!-- Tab 1: Cat Management Table -->
+    <div id="catsTabSection">
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Breed</th>
+              <th>Age</th>
+              <th>Gender</th>
+              <th>Health Status</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminCatsTableBody">
+            <!-- Rendered by admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 2: Applications Table -->
+    <div id="appsTabSection" style="display: none;">
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Cat Name</th>
+              <th>Applicant</th>
+              <th>Contact Details</th>
+              <th>Housing & Experience</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="adminAppsTableBody">
+            <!-- Rendered by admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cat Add/Edit Modal -->
+  <div class="modal-overlay" id="catFormModal">
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="catFormModalTitle">Add New Cat Profile</h3>
+        <button class="modal-close" onclick="closeCatFormModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="catForm" onsubmit="handleSaveCat(event)">
+          <input type="hidden" id="catFormId" name="id">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="catNameInput">Cat Name *</label>
+              <input type="text" id="catNameInput" name="name" class="form-control" placeholder="e.g. Whiskers" required>
+            </div>
+            <div class="form-group">
+              <label for="catBreedInput">Breed *</label>
+              <input type="text" id="catBreedInput" name="breed" class="form-control" placeholder="e.g. Siamese / Tabby" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="catAgeInput">Age (Years) *</label>
+              <input type="number" id="catAgeInput" name="age" class="form-control" min="0" max="30" value="1" required>
+            </div>
+            <div class="form-group">
+              <label for="catAgeGroupInput">Age Group *</label>
+              <select id="catAgeGroupInput" name="age_group" class="form-control" required>
+                <option value="Kitten">Kitten</option>
+                <option value="Young" selected>Young</option>
+                <option value="Adult">Adult</option>
+                <option value="Senior">Senior</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="catGenderInput">Gender *</label>
+              <select id="catGenderInput" name="gender" class="form-control" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="catStatusInput">Adoption Status *</label>
+              <select id="catStatusInput" name="status" class="form-control" required>
+                <option value="Available">Available</option>
+                <option value="Pending">Pending</option>
+                <option value="Adopted">Adopted</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="catImageFileInput">Upload Photo (Or enter URL below)</label>
+            <input type="file" id="catImageFileInput" name="image_file" class="form-control" accept="image/*">
+          </div>
+
+          <div class="form-group">
+            <label for="catImageUrlInput">Or Image URL</label>
+            <input type="text" id="catImageUrlInput" name="image_url_input" class="form-control" placeholder="/uploads/luna.png or https://...">
+          </div>
+
+          <div class="form-group">
+            <label for="catTemperamentInput">Temperament Tags (Comma separated) *</label>
+            <input type="text" id="catTemperamentInput" name="temperament" class="form-control" placeholder="e.g. Playful, Cuddly, Quiet" required>
+          </div>
+
+          <div class="form-group">
+            <label for="catBioInput">Biography & Background *</label>
+            <textarea id="catBioInput" name="bio" class="form-control" placeholder="Describe the cat's personality and habits..." required></textarea>
+          </div>
+
+          <div class="form-row" style="margin-bottom: 1.5rem;">
+            <label><input type="checkbox" id="catSpayedInput" name="spayed_neutered" checked> Spayed / Neutered</label>
+            <label><input type="checkbox" id="catVaccinatedInput" name="vaccinated" checked> Fully Vaccinated</label>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.9rem;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Cat Profile
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

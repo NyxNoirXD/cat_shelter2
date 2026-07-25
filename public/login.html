@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account | Whiskers & Haven</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(44, 26, 29, 0.08);
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      background: transparent;
+      font-family: 'Fredoka', cursive;
+      font-size: 1.05rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: var(--transition-fast);
+    }
+    .auth-tab.active {
+      color: var(--primary-amber);
+      background: var(--primary-soft);
+    }
+    .auth-body {
+      padding: 1.75rem;
+    }
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
+    .auth-step { display: none; }
+    .auth-step.active { display: block; }
+    .auth-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .auth-back-link:hover { color: var(--primary-amber); }
+    .otp-hint {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--accent-sage-soft);
+      border-radius: var(--radius-sm);
+    }
+    .logged-in-banner {
+      text-align: center;
+      padding: 2rem;
+    }
+    .logged-in-banner h2 {
+      font-family: 'Fredoka', cursive;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-paw-pattern"></div>
+
+  <div class="auth-page">
+    <div class="auth-card">
+      <a href="/" class="auth-back-link" style="padding: 1rem 1.75rem 0;">
+        <i class="fa-solid fa-arrow-left"></i> Back to adoption site
+      </a>
+
+      <div id="loggedInView" class="logged-in-banner" style="display: none;">
+        <h2><i class="fa-solid fa-circle-check" style="color: var(--status-available);"></i> Signed in</h2>
+        <p id="loggedInEmail" style="color: var(--text-muted); margin-bottom: 1.5rem;"></p>
+        <section class="account-applications" aria-labelledby="accountApplicationsTitle">
+          <div class="account-section-heading">
+            <div>
+              <span class="section-kicker">Your journey</span>
+              <h3 id="accountApplicationsTitle">My adoption requests</h3>
+            </div>
+            <i class="fa-solid fa-clipboard-list account-section-icon"></i>
+          </div>
+          <div id="accountApplicationsList" class="account-applications-list">
+            <div class="account-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading your requests...</div>
+          </div>
+          <a href="/#browse" class="btn-primary account-browse-link"><i class="fa-solid fa-paw"></i> Browse more cats</a>
+        </section>
+        <button type="button" class="btn-secondary" id="logoutBtn" style="width: 100%; justify-content: center;">
+          <i class="fa-solid fa-right-from-bracket"></i> Log out
+        </button>
+      </div>
+
+      <div id="authForms">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-tab="login">Log in</button>
+          <button type="button" class="auth-tab" data-tab="register">Register</button>
+        </div>
+
+        <div class="auth-body">
+          <!-- Login -->
+          <div class="auth-panel active" id="panel-login">
+            <form id="loginForm">
+              <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" class="form-control" required autocomplete="email">
+              </div>
+              <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" class="form-control" required autocomplete="current-password">
+              </div>
+              <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+                <i class="fa-solid fa-right-to-bracket"></i> Log in
+              </button>
+            </form>
+          </div>
+
+          <!-- Register -->
+          <div class="auth-panel" id="panel-register">
+            <div class="auth-step active" id="registerStep1">
+              <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
+                Create an account with your email. We send a 6-digit code to verify you own the address before activating your account.
+              </p>
+              <form id="registerForm">
+                <div class="form-group">
+                  <label for="registerEmail">Email</label>
+                  <input type="email" id="registerEmail" class="form-control" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                  <label for="registerPassword">Password</label>
+                  <input type="password" id="registerPassword" class="form-control" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters, letters and numbers">
+                </div>
+                <div class="form-group">
+                  <label for="registerPasswordConfirm">Confirm password</label>
+                  <input type="password" id="registerPasswordConfirm" class="form-control" required minlength="8" autocomplete="new-password" placeholder="Repeat your password">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+                  <i class="fa-solid fa-envelope"></i> Send verification code
+                </button>
+              </form>
+            </div>
+
+            <div class="auth-step" id="registerStep2">
+              <div class="otp-hint">
+                Enter the 6-digit code sent to <strong id="otpEmailDisplay"></strong>. Codes expire in 15 minutes.
+              </div>
+              <form id="verifyOtpForm">
+                <div class="form-group">
+                  <label for="otpCode">Verification code</label>
+                  <input type="text" id="otpCode" class="form-control" required pattern="\d{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-bottom: 0.75rem;">
+                  <i class="fa-solid fa-check"></i> Verify & create account
+                </button>
+                <button type="button" class="btn-secondary" id="resendOtpBtn" style="width: 100%; justify-content: center;">
+                  <i class="fa-solid fa-rotate-right"></i> Resend code
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

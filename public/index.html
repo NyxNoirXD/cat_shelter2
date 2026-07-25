@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whiskers & Haven | Feline Adoption Center</title>
+  <meta name="description" content="Find your perfect furry feline companion at Whiskers & Haven. Browse available cats, kitten adoptions, and submit your adoption application online!">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Floating Paw Print Background Pattern -->
+  <div class="bg-paw-pattern"></div>
+
+  <!-- Header Navigation -->
+  <header class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="brand-icon">
+        <i class="fa-solid fa-cat"></i>
+      </div>
+      <div class="brand-title">
+        Whiskers <span>& Haven</span>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#browse" class="nav-link active">Adoptable Cats</a></li>
+      <li><a href="/about" class="nav-link">About Us</a></li>
+      <li><a href="/contact" class="nav-link">Contact</a></li>
+      <li><a href="/login" class="nav-link" id="navLoginLink"><i class="fa-solid fa-user"></i> Account</a></li>
+      <li><a href="/admin" class="btn-secondary" id="navAdminBtn"><i class="fa-solid fa-user-shield"></i> Admin Portal</a></li>
+    </ul>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-content">
+      <div class="hero-eyebrow"><i class="fa-solid fa-paw"></i> Thoughtful matches. Happier homes.</div>
+      <h1 id="hero-title">Find Your Perfect <span>Feline</span> Companion</h1>
+      <p>Every cat deserves a loving home filled with cozy nap spots, warm sunshine, and gentle head purrs. Start your adoption journey today.</p>
+
+      <div class="hero-actions">
+        <a href="#browse" class="btn-primary">
+          <i class="fa-solid fa-paw"></i> Browse Available Cats
+        </a>
+        <a href="/about" class="btn-quiet">Meet the people behind the paws <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <h3 id="statTotalCats">0</h3>
+          <p>Rescued Felines</p>
+        </div>
+        <div class="stat-item">
+          <h3 id="statAvailableCats">0</h3>
+          <p>Ready to Adopt</p>
+        </div>
+        <div class="stat-item">
+          <h3 id="statHealthPercent">0%</h3>
+          <p>Spayed & Vaccinated</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-image-wrapper">
+      <div class="hero-cat-card">
+        <img src="/uploads/luna.png" alt="Featured Adoption Cat Oliver">
+        <div class="hero-floating-badge">
+          <div class="badge-avatar"><i class="fa-solid fa-cat"></i></div>
+          <div>
+            <h4 style="font-family: 'Fredoka', cursive;">Oliver is looking for a home!</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">2 yrs old • Orange Tabby • Affectionate</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Search Section -->
+  <section class="filter-section" id="browse">
+    <div class="filter-card">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Search by cat name, breed, or personality...">
+      </div>
+
+      <div class="filter-group">
+        <select id="filterAgeGroup" class="filter-select">
+          <option value="">All Age Groups</option>
+          <option value="Kitten">Kitten (0 - 1 yr)</option>
+          <option value="Young">Young (1 - 3 yrs)</option>
+          <option value="Adult">Adult (3 - 7 yrs)</option>
+          <option value="Senior">Senior (7+ yrs)</option>
+        </select>
+
+        <select id="filterGender" class="filter-select">
+          <option value="">All Genders</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+
+        <select id="filterStatus" class="filter-select">
+          <option value="">All Statuses</option>
+          <option value="Available" selected>Available</option>
+          <option value="Pending">Pending Adoption</option>
+          <option value="Adopted">Adopted</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Adoption Process Steps -->
+  <section class="process-section">
+    <div class="section-header" style="text-align: center; max-width: 600px; margin: 0 auto 2.5rem;">
+      <h2>How Adoption Works</h2>
+      <p style="color: var(--text-muted);">Four simple steps to bring your new feline friend home.</p>
+    </div>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="step-number">1</div>
+        <div class="step-icon"><i class="fa-solid fa-paw"></i></div>
+        <h3>Browse Cats</h3>
+        <p>Explore our available cats and find one that matches your lifestyle and preferences.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-number">2</div>
+        <div class="step-icon"><i class="fa-solid fa-file-pen"></i></div>
+        <h3>Submit Application</h3>
+        <p>Fill out a quick adoption application for your chosen cat. It takes just a few minutes.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-number">3</div>
+        <div class="step-icon"><i class="fa-solid fa-handshake"></i></div>
+        <h3>Meet &amp; Greet</h3>
+        <p>Our team reviews your application and invites you to meet your potential new family member.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-number">4</div>
+        <div class="step-icon"><i class="fa-solid fa-house"></i></div>
+        <h3>Welcome Home</h3>
+        <p>Once approved, complete the adoption and take your cat home to start your new life together!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cats Display Grid Section -->
+  <section class="cats-section">
+    <div class="section-header">
+      <div>
+        <h2>Meet Our Felines</h2>
+        <p style="color: var(--text-muted);">Click any cat to view their full profile or start an adoption application.</p>
+      </div>
+    </div>
+
+    <!-- Cat Cards Grid -->
+    <div class="cats-grid" id="catsGrid">
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+        <p>Finding our felines...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cat Detail & Adoption Modal -->
+  <div class="modal-overlay" id="catDetailModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="modalCatTitle" style="font-size: 1.5rem;">Cat Profile</h3>
+        <button class="modal-close" onclick="closeCatModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="cat-detail-hero">
+          <img id="modalCatImg" src="" alt="Cat Image" class="cat-detail-img">
+          <div class="cat-detail-info">
+            <h2 id="modalCatName">Cat Name</h2>
+            <p id="modalCatBreedMeta" style="color: var(--text-muted); font-weight: 600;"></p>
+            <div class="health-pills">
+              <span class="health-pill" id="modalSpayedPill"><i class="fa-solid fa-check"></i> Spayed/Neutered</span>
+              <span class="health-pill" id="modalVaccinatedPill"><i class="fa-solid fa-syringe"></i> Vaccinated</span>
+            </div>
+            <div id="modalTemperamentTags" class="cat-meta-tags"></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="margin-bottom: 0.5rem;">About Me</h4>
+          <p id="modalCatBio" style="color: var(--text-muted);"></p>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid rgba(44, 26, 29, 0.1); margin: 1.5rem 0;">
+
+        <div id="modalAvailabilityNotice" class="availability-notice" hidden></div>
+
+        <!-- Adoption Application Form -->
+        <h3 id="adoptionFormHeading" style="font-size: 1.4rem; margin-bottom: 1rem;"><i class="fa-solid fa-heart" style="color: var(--primary-amber);"></i> Apply to Adopt</h3>
+        <form id="adoptionForm" onsubmit="handleAdoptionSubmit(event)">
+          <input type="hidden" id="formCatId" name="cat_id">
+          <input type="hidden" id="formCatName" name="cat_name">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="applicant_name">Your Full Name *</label>
+                <input type="text" id="applicant_name" class="form-control" placeholder="e.g. Jane Doe" required>
+              </div>
+              <div class="form-group" id="adoptionEmailGroup">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" class="form-control" placeholder="jane@example.com" required>
+              </div>
+            </div>
+            <div id="adoptionSignedInHint" class="account-contact-hint" hidden></div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="phone">Phone Number *</label>
+              <input type="tel" id="phone" class="form-control" placeholder="(555) 000-0000" required>
+            </div>
+            <div class="form-group">
+              <label for="housing_type">Housing Type *</label>
+              <select id="housing_type" class="form-control" required>
+                <option value="Own House">Own House</option>
+                <option value="Rent House">Rent House (Pet Friendly)</option>
+                <option value="Apartment">Apartment / Condo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="experience">Cat Care Experience *</label>
+            <select id="experience" class="form-control" required>
+              <option value="First Time Owner">First Time Cat Owner</option>
+              <option value="Previous Owner">Previous Cat Owner</option>
+              <option value="Current Pet Owner">Current Pet Owner</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Why would you be a great home for this cat?</label>
+            <textarea id="message" class="form-control" placeholder="Tell us a bit about your lifestyle, home, or household pets..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.9rem;">
+            <i class="fa-solid fa-paper-plane"></i> Submit Adoption Application
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>Whiskers & Haven 🐾</h3>
+        <p style="max-width: 360px;">Dedicated to rescuing, nurturing, and rehoming loving cats into warm forever families.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+          <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4 style="color: #fff; font-family: 'Fredoka', cursive; margin-bottom: 0.75rem;">Quick Links</h4>
+        <div class="footer-links">
+          <a href="/">Available Cats</a>
+          <a href="/about">About Us</a>
+          <a href="/contact">Contact</a>
+          <a href="/login">My Account</a>
+        </div>
+      </div>
+      <div>
+        <h4 style="color: #fff; font-family: 'Fredoka', cursive; margin-bottom: 0.75rem;">Visit Us</h4>
+        <div class="footer-hours">
+          123 Whisker Lane, Pawsmouth, CA<br>
+          Mon–Fri: 10 AM – 6 PM<br>
+          Sat: 10 AM – 4 PM<br>
+          Sun: Closed
+        </div>
+      </div>
+      <div>
+        <a href="/admin" class="secret-admin-trigger" title="Hidden Admin Dashboard Access">
+          <i class="fa-solid fa-user-lock"></i> 🐾 Staff Portal Access
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Whiskers & Haven Pet Adoption Center. All Rights Reserved. Crafted with feline passion.
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

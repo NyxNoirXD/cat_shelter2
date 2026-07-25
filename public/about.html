@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us | Whiskers & Haven</title>
+  <meta name="description" content="Learn about Whiskers & Haven Pet Adoption Center's mission, team, and journey in rescuing and rehoming cats.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .about-page {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+    .about-hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .about-hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .about-hero h1 span {
+      color: var(--primary-amber);
+    }
+    .about-hero p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .about-section {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(44, 26, 29, 0.08);
+    }
+    .about-section h2 {
+      font-family: 'Fredoka', cursive;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .about-section h2 i {
+      color: var(--primary-amber);
+    }
+    .about-section p {
+      color: var(--text-main);
+      line-height: 1.7;
+      margin-bottom: 0.8rem;
+    }
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .value-card {
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid rgba(44, 26, 29, 0.06);
+    }
+    .value-card i {
+      font-size: 2rem;
+      color: var(--primary-amber);
+      margin-bottom: 0.75rem;
+    }
+    .value-card h3 {
+      font-family: 'Fredoka', cursive;
+      margin-bottom: 0.5rem;
+    }
+    .value-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .team-card {
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .team-card .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--primary-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 2.5rem;
+    }
+    .team-card h3 {
+      font-family: 'Fredoka', cursive;
+      font-size: 1.1rem;
+    }
+    .team-card p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    .stats-about {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .stats-about div {
+      text-align: center;
+      padding: 1rem;
+    }
+    .stats-about h3 {
+      font-size: 2rem;
+      color: var(--primary-amber);
+      font-family: 'Fredoka', cursive;
+    }
+    .stats-about p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 0;
+    }
+    @media (max-width: 600px) {
+      .stats-about { grid-template-columns: 1fr; }
+      .about-hero h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-paw-pattern"></div>
+
+  <header class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="brand-icon"><i class="fa-solid fa-cat"></i></div>
+      <div class="brand-title">Whiskers <span>& Haven</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/" class="nav-link">Adoptable Cats</a></li>
+      <li><a href="/about" class="nav-link active">About Us</a></li>
+      <li><a href="/contact" class="nav-link">Contact</a></li>
+      <li><a href="/login" class="nav-link"><i class="fa-solid fa-user"></i> Account</a></li>
+      <li><a href="/admin" class="btn-secondary"><i class="fa-solid fa-user-shield"></i> Admin Portal</a></li>
+    </ul>
+  </header>
+
+  <div class="about-page">
+    <div class="about-hero">
+      <h1>About <span>Whiskers & Haven</span></h1>
+      <p>Dedicated to rescuing, nurturing, and finding loving forever homes for cats in need.</p>
+    </div>
+
+    <div class="about-section">
+      <h2><i class="fa-solid fa-paw"></i> Our Mission</h2>
+      <p>Whiskers & Haven is a non-profit feline adoption center founded in 2020. We believe every cat deserves a warm, loving home filled with cozy nap spots, gentle head scratches, and endless purrs. Our team works tirelessly to rescue, rehabilitate, and rehome cats of all ages, breeds, and backgrounds.</p>
+      <p>From senior cats needing a quiet retirement home to playful kittens ready for their first adventure, we match each feline with the perfect family. We provide full veterinary care, spaying/neutering, vaccinations, and behavioral support to ensure every cat is healthy and ready for adoption.</p>
+    </div>
+
+    <div class="about-section">
+      <h2><i class="fa-solid fa-heart"></i> Our Values</h2>
+      <div class="values-grid">
+        <div class="value-card">
+          <i class="fa-solid fa-hand-holding-heart"></i>
+          <h3>Compassion</h3>
+          <p>Every cat receives individualized care, love, and respect regardless of age, medical condition, or background.</p>
+        </div>
+        <div class="value-card">
+          <i class="fa-solid fa-shield-halved"></i>
+          <h3>Responsibility</h3>
+          <p>We ensure all cats are spayed/neutered, vaccinated, and thoroughly health-checked before adoption.</p>
+        </div>
+        <div class="value-card">
+          <i class="fa-solid fa-people-arrows"></i>
+          <h3>Lifelong Bonds</h3>
+          <p>We carefully match cats with adopters based on lifestyle, experience, and home environment for lasting happiness.</p>
+        </div>
+        <div class="value-card">
+          <i class="fa-solid fa-seedling"></i>
+          <h3>Community</h3>
+          <p>We educate the community on responsible pet ownership and provide resources for cat care beyond adoption.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-section">
+      <h2><i class="fa-solid fa-users"></i> Our Team</h2>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="avatar">🐱</div>
+          <h3>Sarah Mitchell</h3>
+          <p>Founder & Director</p>
+        </div>
+        <div class="team-card">
+          <div class="avatar">🐈</div>
+          <h3>Dr. James Rivera</h3>
+          <p>Lead Veterinarian</p>
+        </div>
+        <div class="team-card">
+          <div class="avatar">😺</div>
+          <h3>Emily Chen</h3>
+          <p>Adoption Coordinator</p>
+        </div>
+        <div class="team-card">
+          <div class="avatar">🐾</div>
+          <h3>Mark Thompson</h3>
+          <p>Volunteer Manager</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-section">
+      <h2><i class="fa-solid fa-calendar-check"></i> Our Impact</h2>
+      <div class="stats-about">
+        <div>
+          <h3>150+</h3>
+          <p>Cats Rescued</p>
+        </div>
+        <div>
+          <h3>120+</h3>
+          <p>Adoptions Completed</p>
+        </div>
+        <div>
+          <h3>98%</h3>
+          <p>Positive Feedback</p>
+        </div>
+      </div>
+      <p style="margin-top: 1.5rem; text-align: center;">Since opening our doors, we have helped over 150 cats find their forever homes. Every adoption fee goes directly back into caring for the next cat in need.</p>
+    </div>
+
+    <div style="text-align: center; margin: 3rem 0;">
+      <a href="/" class="btn-primary" style="display: inline-flex;">
+        <i class="fa-solid fa-paw"></i> Browse Available Cats
+      </a>
+      <a href="/login" class="btn-secondary" style="display: inline-flex; margin-left: 1rem;">
+        <i class="fa-solid fa-user"></i> Create an Account
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <h3>Whiskers & Haven 🐾</h3>
+        <p style="max-width: 360px;">Dedicated to rescuing, nurturing, and rehoming loving cats into warm forever families.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+          <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4 style="color: #fff; font-family: 'Fredoka', cursive; margin-bottom: 0.75rem;">Quick Links</h4>
+        <div class="footer-links">
+          <a href="/">Available Cats</a>
+          <a href="/about">About Us</a>
+          <a href="/contact">Contact</a>
+          <a href="/login">My Account</a>
+        </div>
+      </div>
+      <div>
+        <h4 style="color: #fff; font-family: 'Fredoka', cursive; margin-bottom: 0.75rem;">Visit Us</h4>
+        <div class="footer-hours">
+          123 Whisker Lane, Pawsmouth, CA<br>
+          Mon-Fri: 10 AM - 6 PM<br>
+          Sat: 10 AM - 4 PM<br>
+          Sun: Closed
+        </div>
+      </div>
+      <div>
+        <a href="/admin" class="secret-admin-trigger"><i class="fa-solid fa-user-lock"></i> 🐾 Staff Portal Access</a>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2026 Whiskers & Haven Pet Adoption Center. All Rights Reserved.</div>
+  </footer>
+</body>
+</html>
