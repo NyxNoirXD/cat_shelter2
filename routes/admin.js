@@ -103,8 +103,16 @@ router.put('/applications/:id', verifyAdminToken, (req, res) => {
 
   db.run('UPDATE applications SET status = ? WHERE id = ?', [status, req.params.id], function (err) {
     if (err) return res.status(500).json({ success: false, error: 'Failed to update application status' });
+    db.logActivity('application.status_changed', `Application #${req.params.id} → ${status}`, req.admin?.username);
     res.json({ success: true, message: `Application status updated to ${status}` });
   });
+});
+
+// GET /api/admin/activity-log
+router.get('/activity-log', verifyAdminToken, (req, res) => {
+  const state = db.getState();
+  const log = (state.activity_log || []).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  res.json({ success: true, data: log });
 });
 
 // GET /api/admin/db - View raw database state

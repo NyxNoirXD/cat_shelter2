@@ -6,6 +6,7 @@ const { body, validationResult } = require('express-validator');
 const db = require('../db/database');
 const { verifyAdminToken } = require('../middleware/auth');
 
+
 const isVercel = !!process.env.VERCEL_ENV;
 
 // Configure Multer for cat image uploads
@@ -157,24 +158,25 @@ router.post(
       return res.status(400).json({ success: false, errors: errors.array() });
     }
 
-    const { name, breed, age, age_group, gender, status, bio, temperament, spayed_neutered, vaccinated } = req.body;
+    const { name, breed, age, age_group, gender, status, bio, temperament, spayed_neutered, vaccinated, intake_date, weight_kg, microchip } = req.body;
 
     let image_url = await resolveImageUrl(req);
 
     const sql = `
-      INSERT INTO cats (name, breed, age, age_group, gender, status, image_url, bio, temperament, spayed_neutered, vaccinated)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO cats (name, breed, age, age_group, gender, status, image_url, bio, temperament, spayed_neutered, vaccinated, intake_date, weight_kg, microchip)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const catStatus = status || 'Available';
     const isSpayed = spayed_neutered === 'on' || spayed_neutered === '1' || spayed_neutered === 1 ? 1 : 0;
     const isVaccinated = vaccinated === 'on' || vaccinated === '1' || vaccinated === 1 ? 1 : 0;
 
-    db.run(sql, [name, breed, age, age_group, gender, catStatus, image_url, bio, temperament, isSpayed, isVaccinated], function (err) {
+    db.run(sql, [name, breed, age, age_group, gender, catStatus, image_url, bio, temperament, isSpayed, isVaccinated, intake_date || null, weight_kg || null, microchip || null], function (err) {
       if (err) {
         console.error('Error inserting cat:', err);
         return res.status(500).json({ success: false, error: 'Failed to save cat profile' });
       }
+      db.logActivity('cat.created', `Created cat "${name}" (${breed})`, req.admin?.username);
       res.status(201).json({
         success: true,
         message: 'Cat profile created successfully!',
@@ -206,9 +208,9 @@ router.put(
     }
 
     const catId = req.params.id;
-    const { name, breed, age, age_group, gender, status, bio, temperament, spayed_neutered, vaccinated } = req.body;
+    const { name, breed, age, age_group, gender, status, bio, temperament, spayed_neutered, vaccinated, intake_date, weight_kg, microchip } = req.body;
 
-    db.get('SELECT image_url FROM cats WHERE id = ?', [catId], async (err, cat) => {
+    db.get('SELECT name, image_url FROM cats WHERE id = ?', [catId], async (err, cat) => {
       if (err || !cat) {
         return res.status(404).json({ success: false, error: 'Cat not found' });
       }
@@ -223,14 +225,15 @@ router.put(
 
       const sql = `
         UPDATE cats
-        SET name = ?, breed = ?, age = ?, age_group = ?, gender = ?, status = ?, image_url = ?, bio = ?, temperament = ?, spayed_neutered = ?, vaccinated = ?
+        SET name = ?, breed = ?, age = ?, age_group = ?, gender = ?, status = ?, image_url = ?, bio = ?, temperament = ?, spayed_neutered = ?, vaccinated = ?, intake_date = ?, weight_kg = ?, microchip = ?
         WHERE id = ?
       `;
 
-      db.run(sql, [name, breed, age, age_group, gender, status, image_url, bio, temperament, isSpayed, isVaccinated, catId], (err) => {
+      db.run(sql, [name, breed, age, age_group, gender, status, image_url, bio, temperament, isSpayed, isVaccinated, intake_date || null, weight_kg || null, microchip || null, catId], (err) => {
         if (err) {
           return res.status(500).json({ success: false, error: 'Failed to update cat details' });
         }
+        db.logActivity('cat.updated', `Updated cat "${name}" (ID: ${catId})`, req.admin?.username);
         res.json({ success: true, message: 'Cat updated successfully!' });
       });
     });
@@ -240,6 +243,7 @@ router.put(
 // DELETE /api/cats/:id - Delete cat (Admin required)
 router.delete('/:id', verifyAdminToken, (req, res) => {
   const catId = req.params.id;
+  const catName = (db.getState().cats || []).find(c => c.id === parseInt(catId))?.name || catId;
   db.run('DELETE FROM cats WHERE id = ?', [catId], function (err) {
     if (err) {
       return res.status(500).json({ success: false, error: 'Failed to delete cat' });
@@ -247,6 +251,7 @@ router.delete('/:id', verifyAdminToken, (req, res) => {
     if (this.changes === 0) {
       return res.status(404).json({ success: false, error: 'Cat not found' });
     }
+    db.logActivity('cat.deleted', `Deleted cat "${catName}" (ID: ${catId})`, req.admin?.username);
     res.json({ success: true, message: 'Cat profile removed successfully.' });
   });
 });
@@ -260,10 +265,12 @@ router.patch('/:id/status', verifyAdminToken, (req, res) => {
     return res.status(400).json({ success: false, error: 'Invalid status. Must be Available, Pending, or Adopted.' });
   }
 
+  const catName = (db.getState().cats || []).find(c => c.id === catId)?.name || catId;
   const updated = db.updateCatStatus(catId, status);
   if (!updated) {
     return res.status(404).json({ success: false, error: 'Cat not found' });
   }
+  db.logActivity('cat.status_changed', `Changed "${catName}" status to ${status}`, req.admin?.username);
   res.json({ success: true, message: `Status updated to ${status}`, data: { id: catId, status } });
 });
 

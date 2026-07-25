@@ -13,7 +13,10 @@
       "temperament": "Playful, Affectionate, Gentle",
       "spayed_neutered": 1,
       "vaccinated": 1,
-      "created_at": "2026-07-25T10:10:14.043Z"
+      "created_at": "2026-07-25T10:10:14.043Z",
+      "intake_date": null,
+      "weight_kg": null,
+      "microchip": null
     },
     {
       "id": 2,
@@ -28,7 +31,10 @@
       "temperament": "Calm, Quiet, Regal",
       "spayed_neutered": 1,
       "vaccinated": 1,
-      "created_at": "2026-07-25T10:10:14.043Z"
+      "created_at": "2026-07-25T10:10:14.043Z",
+      "intake_date": null,
+      "weight_kg": null,
+      "microchip": null
     },
     {
       "id": 3,
@@ -43,7 +49,10 @@
       "temperament": "Curious, Energetic, Friendly",
       "spayed_neutered": 1,
       "vaccinated": 1,
-      "created_at": "2026-07-25T10:10:14.043Z"
+      "created_at": "2026-07-25T10:10:14.043Z",
+      "intake_date": null,
+      "weight_kg": null,
+      "microchip": null
     },
     {
       "id": 4,
@@ -58,7 +67,10 @@
       "temperament": "Loyal, Cuddly, Smart",
       "spayed_neutered": 1,
       "vaccinated": 1,
-      "created_at": "2026-07-25T10:10:14.043Z"
+      "created_at": "2026-07-25T10:10:14.043Z",
+      "intake_date": null,
+      "weight_kg": null,
+      "microchip": null
     },
     {
       "id": 5,
@@ -73,7 +85,10 @@
       "temperament": "Playful",
       "spayed_neutered": 0,
       "vaccinated": 0,
-      "created_at": "2026-07-25T15:16:48.995Z"
+      "created_at": "2026-07-25T15:16:48.995Z",
+      "intake_date": null,
+      "weight_kg": null,
+      "microchip": null
     },
     {
       "id": 6,
@@ -88,7 +103,10 @@
       "temperament": "Playful",
       "spayed_neutered": 0,
       "vaccinated": 0,
-      "created_at": "2026-07-25T15:16:49.010Z"
+      "created_at": "2026-07-25T15:16:49.010Z",
+      "intake_date": null,
+      "weight_kg": null,
+      "microchip": null
     },
     {
       "id": 7,
@@ -103,7 +121,10 @@
       "temperament": "Playful",
       "spayed_neutered": 0,
       "vaccinated": 0,
-      "created_at": "2026-07-25T15:16:49.019Z"
+      "created_at": "2026-07-25T15:16:49.019Z",
+      "intake_date": null,
+      "weight_kg": null,
+      "microchip": null
     },
     {
       "id": 8,
@@ -118,7 +139,10 @@
       "temperament": "Friendly",
       "spayed_neutered": 0,
       "vaccinated": 0,
-      "created_at": "2026-07-25T15:37:54.812Z"
+      "created_at": "2026-07-25T15:37:54.812Z",
+      "intake_date": null,
+      "weight_kg": null,
+      "microchip": null
     }
   ],
   "applications": [],
@@ -132,5 +156,49 @@
   ],
   "users": [],
   "pending_registrations": [],
-  "contact_inquiries": []
+  "contact_inquiries": [],
+  "activity_log": [
+    {
+      "id": 5,
+      "action": "cat.status_changed",
+      "details": "Changed \"Oliver\" status to Pending",
+      "admin": "admin",
+      "timestamp": "2026-07-25T17:23:15.539Z"
+    },
+    {
+      "id": 4,
+      "action": "cat.status_changed",
+      "details": "Changed \"1\" status to Available",
+      "admin": "admin",
+      "timestamp": "2026-07-25T17:22:36.950Z"
+    },
+    {
+      "id": 3,
+      "action": "cat.status_changed",
+      "details": "Changed \"1\" status to Pending",
+      "admin": "admin",
+      "timestamp": "2026-07-25T17:22:36.789Z"
+    },
+    {
+      "id": 2,
+      "action": "cat.status_changed",
+      "details": "Changed \"1\" status to Available",
+      "admin": "admin",
+      "timestamp": "2026-07-25T17:21:49.546Z"
+    },
+    {
+      "id": 1,
+      "action": "cat.status_changed",
+      "details": "Changed \"1\" status to Pending",
+      "admin": "admin",
+      "timestamp": "2026-07-25T17:21:49.520Z"
+    },
+    {
+      "id": 6,
+      "action": "cat.status_changed",
+      "details": "Changed \"Oliver\" status to Available",
+      "admin": "admin",
+      "timestamp": "2026-07-25T17:23:15.618Z"
+    }
+  ]
 }

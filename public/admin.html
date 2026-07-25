@@ -239,6 +239,7 @@
     <div class="admin-nav-tabs">
       <button class="tab-btn active" id="tabCatsBtn" onclick="switchTab('cats')"><i class="fa-solid fa-cat"></i> Cat Listings</button>
       <button class="tab-btn" id="tabAppsBtn" onclick="switchTab('applications')"><i class="fa-solid fa-file-signature"></i> Applications</button>
+      <button class="tab-btn" id="tabLogBtn" onclick="switchTab('activity')"><i class="fa-solid fa-clock-rotate-left"></i> Activity Log</button>
       <button class="tab-btn" id="tabDbBtn" onclick="switchTab('database')"><i class="fa-solid fa-database"></i> Database</button>
     </div>
 
@@ -286,7 +287,16 @@
       </div>
     </div>
 
-    <!-- Tab 3: Database Viewer -->
+    <!-- Tab 3: Activity Log -->
+    <div id="activityTabSection" style="display: none;">
+      <div class="admin-table-wrapper">
+        <div id="activityLogContent" style="padding: 1rem; max-height: 600px; overflow-y: auto;">
+          <p style="color: var(--text-muted); text-align: center; padding: 2rem;">Loading activity log...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Database Viewer -->
     <div id="dbTabSection" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <h3 style="font-family: 'Fredoka', cursive;"><i class="fa-solid fa-database"></i> Database State</h3>
@@ -382,9 +392,26 @@
             <input type="text" id="catImageUrlInput" name="image_url_input" class="form-control" placeholder="/uploads/luna.png or https://...">
           </div>
 
-          <div class="form-group">
-            <label for="catTemperamentInput">Temperament Tags (Comma separated) *</label>
-            <input type="text" id="catTemperamentInput" name="temperament" class="form-control" placeholder="e.g. Playful, Cuddly, Quiet" required>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="catTemperamentInput">Temperament Tags (Comma separated) *</label>
+              <input type="text" id="catTemperamentInput" name="temperament" class="form-control" placeholder="e.g. Playful, Cuddly, Quiet" required>
+            </div>
+            <div class="form-group">
+              <label for="catIntakeDateInput">Intake Date</label>
+              <input type="date" id="catIntakeDateInput" name="intake_date" class="form-control">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="catWeightInput">Weight (kg)</label>
+              <input type="number" id="catWeightInput" name="weight_kg" class="form-control" min="0" max="30" step="0.1" placeholder="e.g. 5.2">
+            </div>
+            <div class="form-group">
+              <label for="catMicrochipInput">Microchip ID</label>
+              <input type="text" id="catMicrochipInput" name="microchip" class="form-control" placeholder="e.g. 985112003456789">
+            </div>
           </div>
 
           <div class="form-group">

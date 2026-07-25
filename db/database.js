@@ -10,7 +10,7 @@ const dbFilePath = path.join(__dirname, 'whiskers_db.json');
 let _mongoClient = null;
 let _mongoDb = null;
 
-const COLLECTIONS = ['cats', 'applications', 'admins', 'users', 'pending_registrations', 'contact_inquiries'];
+const COLLECTIONS = ['cats', 'applications', 'admins', 'users', 'pending_registrations', 'contact_inquiries', 'activity_log'];
 
 let state = {
   cats: [],
@@ -18,7 +18,8 @@ let state = {
   admins: [],
   users: [],
   pending_registrations: [],
-  contact_inquiries: []
+  contact_inquiries: [],
+  activity_log: []
 };
 
 let _ready = null;
@@ -116,6 +117,15 @@ function ensureArrays() {
   if (!state.users) state.users = [];
   if (!state.pending_registrations) state.pending_registrations = [];
   if (!state.contact_inquiries) state.contact_inquiries = [];
+  if (!state.activity_log) state.activity_log = [];
+  if (state.cats) {
+    state.cats = state.cats.map(c => ({
+      ...c,
+      intake_date: c.intake_date || null,
+      weight_kg: c.weight_kg || null,
+      microchip: c.microchip || null
+    }));
+  }
 }
 
 function seedAdmin() {
@@ -143,6 +153,7 @@ function seedCats() {
       gender: 'Male', status: 'Available', image_url: '/uploads/luna.png',
       bio: 'Oliver is a sweet, affectionate orange tabby who loves lounging on warm cushions and chasing laser pointers. He gets along wonderfully with people and loves chin scratches.',
       temperament: 'Playful, Affectionate, Gentle', spayed_neutered: 1, vaccinated: 1,
+      intake_date: '2026-03-10', weight_kg: 5.2, microchip: '985112003456789',
       created_at: new Date().toISOString()
     },
     {
@@ -150,6 +161,7 @@ function seedCats() {
       gender: 'Female', status: 'Available', image_url: '/uploads/milo.png',
       bio: 'Snowball is a fluffy, regal Persian beauty with ocean-blue eyes. She thrives in calm environments, enjoys soft grooming sessions, and loves being pampered.',
       temperament: 'Calm, Quiet, Regal', spayed_neutered: 1, vaccinated: 1,
+      intake_date: '2026-04-05', weight_kg: 4.8, microchip: '985112003456790',
       created_at: new Date().toISOString()
     },
     {
@@ -157,6 +169,7 @@ function seedCats() {
       gender: 'Female', status: 'Available', image_url: '/uploads/cleo.png',
       bio: 'Cleo is a curious and energetic Calico explorer. She loves windowsill bird-watching, climbing cat trees, and making cute chirping sounds when excited.',
       temperament: 'Curious, Energetic, Friendly', spayed_neutered: 1, vaccinated: 1,
+      intake_date: '2026-05-12', weight_kg: 3.9, microchip: '985112003456791',
       created_at: new Date().toISOString()
     },
     {
@@ -164,6 +177,7 @@ function seedCats() {
       gender: 'Male', status: 'Available', image_url: '/uploads/shadow.png',
       bio: 'Shadow is a sleek black panther cat with glowing amber eyes. He is extremely loyal, loves lap cuddles during movie nights, and gets along great with other pets.',
       temperament: 'Loyal, Cuddly, Smart', spayed_neutered: 1, vaccinated: 1,
+      intake_date: '2026-02-18', weight_kg: 6.1, microchip: '985112003456792',
       created_at: new Date().toISOString()
     }
   ];
@@ -251,7 +265,9 @@ const db = {
           id: newId, name: params[0], breed: params[1], age: parseInt(params[2]),
           age_group: params[3], gender: params[4], status: params[5], image_url: params[6],
           bio: params[7], temperament: params[8], spayed_neutered: parseInt(params[9]),
-          vaccinated: parseInt(params[10]), created_at: new Date().toISOString()
+          vaccinated: parseInt(params[10]),
+          intake_date: params[11] || null, weight_kg: params[12] ? parseFloat(params[12]) : null,
+          microchip: params[13] || null, created_at: new Date().toISOString()
         };
         state.cats.push(newCat);
         if (USE_MONGO) queueMongoOp(() => _mongoDb.collection('cats').insertOne(newCat));
@@ -261,7 +277,7 @@ const db = {
       }
 
       if (sql.includes('UPDATE cats')) {
-        const catId = parseInt(params[11]);
+        const catId = parseInt(params[14]);
         const idx = state.cats.findIndex(c => c.id === catId);
         if (idx !== -1) {
           state.cats[idx] = {
@@ -269,7 +285,9 @@ const db = {
             name: params[0], breed: params[1], age: parseInt(params[2]),
             age_group: params[3], gender: params[4], status: params[5], image_url: params[6],
             bio: params[7], temperament: params[8], spayed_neutered: parseInt(params[9]),
-            vaccinated: parseInt(params[10])
+            vaccinated: parseInt(params[10]),
+            intake_date: params[11] || null, weight_kg: params[12] ? parseFloat(params[12]) : null,
+            microchip: params[13] || null
           };
           if (USE_MONGO) queueMongoOp(() => _mongoDb.collection('cats').updateOne({ id: catId }, { $set: state.cats[idx] }));
           if (!USE_MONGO) saveStateFile();
@@ -395,6 +413,22 @@ function addContactInquiry({ name, email, subject, message }) {
   if (!USE_MONGO) saveStateFile();
 }
 
+function logActivity(action, details, admin) {
+  const entry = {
+    id: state.activity_log.length > 0 ? Math.max(...state.activity_log.map(e => e.id)) + 1 : 1,
+    action,
+    details,
+    admin: admin || 'system',
+    timestamp: new Date().toISOString()
+  };
+  state.activity_log.push(entry);
+  if (state.activity_log.length > 500) {
+    state.activity_log = state.activity_log.slice(-500);
+  }
+  if (USE_MONGO) queueMongoOp(() => _mongoDb.collection('activity_log').insertOne(entry));
+  if (!USE_MONGO) saveStateFile();
+}
+
 function getState() {
   return state;
 }
@@ -410,3 +444,4 @@ module.exports.createUser = createUser;
 module.exports.updateCatStatus = updateCatStatus;
 module.exports.addContactInquiry = addContactInquiry;
 module.exports.getState = getState;
+module.exports.logActivity = logActivity;

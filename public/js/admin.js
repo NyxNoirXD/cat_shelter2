@@ -244,12 +244,18 @@ function openCatFormModal(cat = null) {
     document.getElementById('catStatusInput').value = cat.status;
     document.getElementById('catImageUrlInput').value = cat.image_url;
     document.getElementById('catTemperamentInput').value = cat.temperament;
+    document.getElementById('catIntakeDateInput').value = cat.intake_date || '';
+    document.getElementById('catWeightInput').value = cat.weight_kg || '';
+    document.getElementById('catMicrochipInput').value = cat.microchip || '';
     document.getElementById('catBioInput').value = cat.bio;
     document.getElementById('catSpayedInput').checked = cat.spayed_neutered === 1 || cat.spayed_neutered === '1' || cat.spayed_neutered === true;
     document.getElementById('catVaccinatedInput').checked = cat.vaccinated === 1 || cat.vaccinated === '1' || cat.vaccinated === true;
   } else {
     document.getElementById('catFormModalTitle').textContent = 'Add New Cat Profile';
     document.getElementById('catFormId').value = '';
+    document.getElementById('catIntakeDateInput').value = new Date().toISOString().split('T')[0];
+    document.getElementById('catWeightInput').value = '';
+    document.getElementById('catMicrochipInput').value = '';
     document.getElementById('catSpayedInput').checked = true;
     document.getElementById('catVaccinatedInput').checked = true;
   }
@@ -348,11 +354,13 @@ function switchTab(tab) {
   const sections = {
     cats: document.getElementById('catsTabSection'),
     applications: document.getElementById('appsTabSection'),
+    activity: document.getElementById('activityTabSection'),
     database: document.getElementById('dbTabSection'),
   };
   const buttons = {
     cats: document.getElementById('tabCatsBtn'),
     applications: document.getElementById('tabAppsBtn'),
+    activity: document.getElementById('tabLogBtn'),
     database: document.getElementById('tabDbBtn'),
   };
 
@@ -369,6 +377,73 @@ function switchTab(tab) {
   if (tab === 'database') {
     fetchDatabaseView();
   }
+  if (tab === 'activity') {
+    fetchActivityLog();
+  }
+}
+
+// Activity Log
+async function fetchActivityLog() {
+  const content = document.getElementById('activityLogContent');
+  if (!content) return;
+  content.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">Loading activity log...</p>';
+
+  try {
+    const res = await fetch('/api/admin/activity-log');
+    const data = await res.json();
+    if (data.success) {
+      renderActivityLog(data.data);
+    } else {
+      content.innerHTML = '<p style="color: #E76F51; text-align: center; padding: 2rem;">Failed to load activity log.</p>';
+    }
+  } catch (err) {
+    content.innerHTML = '<p style="color: #E76F51; text-align: center; padding: 2rem;">Error loading activity log.</p>';
+  }
+}
+
+function renderActivityLog(entries) {
+  const content = document.getElementById('activityLogContent');
+  if (!content) return;
+
+  if (entries.length === 0) {
+    content.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No activity recorded yet.</p>';
+    return;
+  }
+
+  const icons = {
+    'cat.created': 'fa-plus-circle',
+    'cat.updated': 'fa-pen-to-square',
+    'cat.deleted': 'fa-trash',
+    'cat.status_changed': 'fa-flag',
+    'application.status_changed': 'fa-file-circle-check',
+  };
+  const colors = {
+    'cat.created': 'var(--status-available)',
+    'cat.updated': 'var(--primary-amber)',
+    'cat.deleted': 'var(--status-pending)',
+    'cat.status_changed': 'var(--accent-paw)',
+    'application.status_changed': 'var(--accent-sage)',
+  };
+
+  content.innerHTML = '<div style="display: flex; flex-direction: column; gap: 0.5rem;">' +
+    entries.map(e => {
+      const icon = icons[e.action] || 'fa-circle';
+      const color = colors[e.action] || 'var(--text-muted)';
+      const time = new Date(e.timestamp);
+      const dateStr = time.toLocaleDateString();
+      const timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return `
+        <div style="display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.6rem 0.8rem; background: var(--bg-elevated); border-radius: var(--radius-sm); border-left: 3px solid ${color};">
+          <i class="fa-solid ${icon}" style="color: ${color}; font-size: 1.1rem; margin-top: 0.1rem; width: 1.2rem; text-align: center;"></i>
+          <div style="flex: 1;">
+            <div style="font-weight: 600; font-size: 0.9rem;">${escapeHtml(e.details)}</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">
+              <i class="fa-solid fa-user"></i> ${escapeHtml(e.admin)} · ${dateStr} ${timeStr}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('') + '</div>';
 }
 
 // Database Viewer

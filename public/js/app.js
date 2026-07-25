@@ -169,6 +169,16 @@ function openCatModal(catId) {
   document.getElementById('modalCatImg').src = cat.image_url;
   document.getElementById('modalCatImg').alt = `${cat.name} - ${cat.breed}`;
   document.getElementById('modalCatBreedMeta').textContent = `${cat.breed} • ${cat.age} years old (${cat.age_group}) • ${cat.gender}`;
+  const metaLine = document.getElementById('modalCatExtraMeta');
+  const parts = [];
+  if (cat.intake_date) parts.push(`<i class="fa-solid fa-calendar-day"></i> Intake: ${new Date(cat.intake_date).toLocaleDateString()}`);
+  if (cat.weight_kg) parts.push(`<i class="fa-solid fa-weight-scale"></i> ${cat.weight_kg} kg`);
+  if (parts.length) {
+    metaLine.innerHTML = parts.join(' &nbsp;·&nbsp; ');
+    metaLine.style.display = 'block';
+  } else {
+    metaLine.style.display = 'none';
+  }
   document.getElementById('modalCatBio').textContent = cat.bio;
 
   const availabilityNotice = document.getElementById('modalAvailabilityNotice');
