@@ -86,7 +86,7 @@ On first run, the app automatically populates 4 cats and 1 admin account (from e
 
 ## Deploy to Vercel
 
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new)
+[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/NyxNoirXD/cat_shelter2)
 
 ### 1. Provision a KV Database
 
