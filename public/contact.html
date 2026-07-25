@@ -19,7 +19,7 @@
       margin-bottom: 3rem;
     }
     .contact-hero h1 {
-      font-size: 2.5rem;
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
       margin-bottom: 0.75rem;
     }
     .contact-hero h1 span { color: var(--primary-amber); }
@@ -79,6 +79,8 @@
     .hours-row {
       display: flex;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.1rem 0.5rem;
       font-size: 0.9rem;
       padding: 0.3rem 0;
       border-bottom: 1px dashed rgba(44,26,29,0.06);
@@ -160,6 +162,9 @@
       <li><a href="/login" class="nav-link"><i class="fa-solid fa-user"></i> Account</a></li>
       <li><a href="/admin" class="btn-secondary"><i class="fa-solid fa-user-shield"></i> Admin Portal</a></li>
     </ul>
+    <button class="hamburger" id="navToggle" aria-label="Toggle navigation" onclick="this.closest('.navbar').classList.toggle('nav-open')">
+      <span></span><span></span><span></span>
+    </button>
   </header>
 
   <div class="contact-page">
