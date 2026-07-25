@@ -158,6 +158,34 @@
       "message": "Test",
       "status": "Pending",
       "submitted_at": "2026-07-25T17:34:59.760Z"
+    },
+    {
+      "id": 2,
+      "cat_id": 1,
+      "cat_name": "Oliver",
+      "applicant_name": "Test",
+      "email": "test@reject.com",
+      "phone": "555",
+      "housing_type": "Own House",
+      "experience": "First Time Owner",
+      "message": "Test",
+      "status": "Pending",
+      "rejection_reason": null,
+      "submitted_at": "2026-07-25T18:04:42.538Z"
+    },
+    {
+      "id": 3,
+      "cat_id": 1,
+      "cat_name": "Oliver",
+      "applicant_name": "Test",
+      "email": "test2@reject.com",
+      "phone": "555",
+      "housing_type": "Own House",
+      "experience": "First Time Owner",
+      "message": "Test",
+      "status": "Rejected",
+      "rejection_reason": "Home visit unavailable",
+      "submitted_at": "2026-07-25T18:05:10.898Z"
     }
   ],
   "admins": [
@@ -213,6 +241,20 @@
       "details": "Changed \"Oliver\" status to Available",
       "admin": "admin",
       "timestamp": "2026-07-25T17:23:15.618Z"
+    },
+    {
+      "id": 7,
+      "action": "application.status_changed",
+      "details": "Application #undefined → Rejected",
+      "admin": "admin",
+      "timestamp": "2026-07-25T18:04:42.591Z"
+    },
+    {
+      "id": 8,
+      "action": "application.status_changed",
+      "details": "Application #3 → Rejected",
+      "admin": "admin",
+      "timestamp": "2026-07-25T18:05:10.950Z"
     }
   ]
 }

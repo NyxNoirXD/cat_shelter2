@@ -96,12 +96,13 @@ router.get('/applications', verifyAdminToken, (req, res) => {
 
 // PUT /api/admin/applications/:id - Update application status (Pending/Approved/Rejected)
 router.put('/applications/:id', verifyAdminToken, (req, res) => {
-  const { status } = req.body;
+  const { status, rejection_reason } = req.body;
   if (!['Pending', 'Approved', 'Rejected'].includes(status)) {
     return res.status(400).json({ success: false, error: 'Invalid application status' });
   }
 
-  db.run('UPDATE applications SET status = ? WHERE id = ?', [status, req.params.id], function (err) {
+  const reason = status === 'Rejected' ? (rejection_reason || '') : null;
+  db.run('UPDATE applications SET status = ?, rejection_reason = ? WHERE id = ?', [status, reason, req.params.id], function (err) {
     if (err) return res.status(500).json({ success: false, error: 'Failed to update application status' });
     db.logActivity('application.status_changed', `Application #${req.params.id} → ${status}`, req.admin?.username);
     res.json({ success: true, message: `Application status updated to ${status}` });

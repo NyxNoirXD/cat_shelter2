@@ -238,6 +238,7 @@ function openCatModal(catId) {
         <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.5rem;">
           ${myApp.status === 'Pending' ? 'Our team is reviewing your application. We\'ll reach out soon.' :
             myApp.status === 'Approved' ? 'Great news! Your application has been approved. Please check your email for next steps.' :
+            myApp.rejection_reason ? escapeHtml(myApp.rejection_reason) :
             'Unfortunately your application was not approved at this time. You\'re welcome to apply for another cat.'}
         </p>
         <a href="/login" style="display:inline-block;margin-top:1rem;color:var(--primary-amber);text-decoration:none;font-weight:600;">

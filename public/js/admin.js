@@ -212,15 +212,23 @@ function renderApplicationsTable(apps) {
 async function updateAppStatus(appId, newStatus) {
   const app = adminApps.find(a => a.id === appId);
   if (!app) return;
+  let rejection_reason = null;
+  if (newStatus === 'Rejected') {
+    rejection_reason = prompt('Rejection reason (visible to the applicant):');
+    if (rejection_reason === null) return;
+    rejection_reason = rejection_reason.trim() || 'No reason provided';
+  }
   const prevStatus = app.status;
+  const prevReason = app.rejection_reason;
   app.status = newStatus;
+  app.rejection_reason = newStatus === 'Rejected' ? rejection_reason : null;
   renderApplicationsTable(adminApps);
 
   try {
     const res = await fetch(`/api/admin/applications/${appId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus })
+      body: JSON.stringify({ status: newStatus, rejection_reason })
     });
     const data = await res.json();
     if (data.success) {
@@ -228,11 +236,13 @@ async function updateAppStatus(appId, newStatus) {
       fetchStats();
     } else {
       app.status = prevStatus;
+      app.rejection_reason = prevReason;
       renderApplicationsTable(adminApps);
       showToast(data.error || 'Failed to update application', 'error');
     }
   } catch (err) {
     app.status = prevStatus;
+    app.rejection_reason = prevReason;
     renderApplicationsTable(adminApps);
     showToast('Failed to update application', 'error');
   }

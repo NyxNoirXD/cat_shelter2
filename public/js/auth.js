@@ -87,7 +87,7 @@ async function loadMyApplications() {
             <span class="account-status status-${status.toLowerCase()}">${status}</span>
           </div>
           <p>Request submitted ${submittedAt}</p>
-          <small>${status === 'Pending' ? 'Our shelter team is reviewing your request.' : `This request has been ${status.toLowerCase()}.`}</small>
+          <small>${status === 'Pending' ? 'Our shelter team is reviewing your request.' : status === 'Rejected' && application.rejection_reason ? `Reason: ${escapeHtml(application.rejection_reason)}` : `This request has been ${status.toLowerCase()}.`}</small>
         </article>
       `;
     }).join('');

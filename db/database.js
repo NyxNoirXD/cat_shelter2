@@ -312,12 +312,25 @@ const db = {
           id: newId, cat_id: parseInt(params[0]), cat_name: params[1],
           applicant_name: params[2], email: params[3], phone: params[4],
           housing_type: params[5], experience: params[6], message: params[7],
-          status: 'Pending', submitted_at: new Date().toISOString()
+          status: 'Pending', rejection_reason: null, submitted_at: new Date().toISOString()
         };
         state.applications.push(newApp);
         if (USE_MONGO) queueMongoOp(() => _mongoDb.collection('applications').insertOne(newApp));
         if (!USE_MONGO) saveStateFile();
         if (callback) callback.call({ lastID: newId }, null);
+        return;
+      }
+
+      if (sql.includes('UPDATE applications SET status = ?, rejection_reason')) {
+        const appId = parseInt(params[2]);
+        const app = state.applications.find(a => a.id === appId);
+        if (app) {
+          app.status = params[0];
+          app.rejection_reason = params[1] || null;
+          if (USE_MONGO) queueMongoOp(() => _mongoDb.collection('applications').updateOne({ id: appId }, { $set: { status: params[0], rejection_reason: params[1] || null } }));
+          if (!USE_MONGO) saveStateFile();
+        }
+        if (callback) callback.call({ changes: app ? 1 : 0 }, null);
         return;
       }
 
