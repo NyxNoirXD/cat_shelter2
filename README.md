@@ -1,6 +1,6 @@
 # 🐱 Whiskers & Haven — Cat Adoption Center
 
-A full-stack feline adoption platform built with **Node.js**, **Express 5**, and a file-based database. Visitors can browse adoptable cats, submit adoption applications, create accounts, and track their requests — all while shelter staff manage listings and applications through a dedicated admin dashboard.
+A full-stack feline adoption platform built with **Node.js** and **Express 5**. Visitors can browse adoptable cats, submit adoption applications, create accounts, and track their requests — all while shelter staff manage listings and applications through a dedicated admin dashboard.
 
 ## Features
 
@@ -27,7 +27,7 @@ A full-stack feline adoption platform built with **Node.js**, **Express 5**, and
 | -------------- | ----------------------------------------------------------- |
 | **Runtime**    | Node.js                                                     |
 | **Framework**  | Express 5                                                   |
-| **Database**   | JSON file (local) / Vercel Blob (production)                |
+| **Database**   | MongoDB (production) / JSON file (local fallback)           |
 | **Auth**       | JWT + bcryptjs                                              |
 | **Email OTP**  | Bird Verify API (dev mock mode built-in)                    |
 | **Security**   | Helmet, CORS, rate limiting, input validation               |
@@ -82,15 +82,15 @@ Visit **http://localhost:3000/admin** to access the admin dashboard.
 
 ### Seed Data
 
-On first run, the app automatically populates 4 cats and 1 admin account (from environment variables). Delete `db/whiskers_db.json` to re-seed.
+On first run, the app automatically populates 4 cats and 1 admin account (from environment variables). To re-seed, delete `db/whiskers_db.json` (local) or clear the MongoDB collection (production).
 
 ## Deploy to Vercel
 
 [![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/NyxNoirXD/cat_shelter2)
 
-### 1. Provision Blob Storage
+### 1. Provision MongoDB
 
-Vercel Blob is required for persistent storage on Vercel. Go to your Vercel project dashboard → **Storage** → **Create a Blob Store**. This sets the `BLOB_READ_WRITE_TOKEN` environment variable automatically.
+In your Vercel project dashboard → **Storage** → **Create a MongoDB Store**. This sets the `MONGODB_URI` environment variable automatically. No external Atlas setup required.
 
 ### 2. Set Environment Variables
 
@@ -98,12 +98,11 @@ In your Vercel project dashboard → **Settings** → **Environment Variables**,
 
 | Variable          | Description                                                                 |
 | ----------------- | --------------------------------------------------------------------------- |
+| `MONGODB_URI`     | MongoDB connection string from Atlas                                        |
 | `JWT_SECRET`      | Generate with `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
 | `ADMIN_USERNAME`  | Admin username (seeded on first deployment)                                 |
 | `ADMIN_PASSWORD`  | Admin password (seeded on first deployment)                                 |
 | `BIRD_API_KEY`    | Bird Verify API key (leave empty for dev mock — OTPs print to function logs)|
-
-> `BLOB_READ_WRITE_TOKEN` is set automatically when you provision Blob.
 
 ### 3. Deploy
 
@@ -115,7 +114,7 @@ npx vercel --prod
 
 The project auto-detects the `vercel.json` configuration.
 
-> **Images**: File uploads via the admin panel use Vercel Blob when available. Provide image URLs as a fallback. Seed cat images (`/uploads/`) are bundled with the static files.
+> **Images**: Uploads via the admin panel use [Vercel Blob](https://vercel.com/docs/storage/blob) automatically if `BLOB_READ_WRITE_TOKEN` is set. Provide image URLs as a fallback. Seed cat images (`/uploads/`) are bundled with the static files.
 
 ## API Overview
 
@@ -175,8 +174,8 @@ The project auto-detects the `vercel.json` configuration.
 ├── package.json
 │
 ├── db/
-│   ├── database.js        # Database engine (JSON file or Vercel Blob)
-│   └── whiskers_db.json   # Persistent data store (local dev only)
+│   ├── database.js        # Database engine (MongoDB / JSON file fallback)
+│   └── whiskers_db.json   # Local data store (when MONGODB_URI is not set)
 │
 ├── middleware/
 │   └── auth.js            # JWT verification middleware
