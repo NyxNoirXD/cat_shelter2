@@ -7,7 +7,7 @@ const cors = require('cors');
 require('dotenv').config({ quiet: true });
 const db = require('../db/database');
 
-// Initialize database (sync for file, kicks off async for Vercel KV)
+// Initialize database (sync for file, kicks off async for Vercel Blob)
 db.ready().catch(err => console.error('DB init error:', err));
 
 const app = express();

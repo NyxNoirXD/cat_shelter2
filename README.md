@@ -27,7 +27,7 @@ A full-stack feline adoption platform built with **Node.js**, **Express 5**, and
 | -------------- | ----------------------------------------------------------- |
 | **Runtime**    | Node.js                                                     |
 | **Framework**  | Express 5                                                   |
-| **Database**   | JSON file (local) / Vercel KV (production)                  |
+| **Database**   | JSON file (local) / Vercel Blob (production)                |
 | **Auth**       | JWT + bcryptjs                                              |
 | **Email OTP**  | Bird Verify API (dev mock mode built-in)                    |
 | **Security**   | Helmet, CORS, rate limiting, input validation               |
@@ -88,9 +88,9 @@ On first run, the app automatically populates 4 cats and 1 admin account (from e
 
 [![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/NyxNoirXD/cat_shelter2)
 
-### 1. Provision a KV Database
+### 1. Provision Blob Storage
 
-Vercel KV (Upstash Redis) is required for persistent storage on Vercel. Go to your Vercel project dashboard → **Storage** → **Create a KV Database**. This sets the `KV_REST_API_URL` and `KV_REST_API_TOKEN` environment variables automatically.
+Vercel Blob is required for persistent storage on Vercel. Go to your Vercel project dashboard → **Storage** → **Create a Blob Store**. This sets the `BLOB_READ_WRITE_TOKEN` environment variable automatically.
 
 ### 2. Set Environment Variables
 
@@ -103,7 +103,7 @@ In your Vercel project dashboard → **Settings** → **Environment Variables**,
 | `ADMIN_PASSWORD`  | Admin password (seeded on first deployment)                                 |
 | `BIRD_API_KEY`    | Bird Verify API key (leave empty for dev mock — OTPs print to function logs)|
 
-> `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set automatically when you provision KV.
+> `BLOB_READ_WRITE_TOKEN` is set automatically when you provision Blob.
 
 ### 3. Deploy
 
@@ -175,7 +175,7 @@ The project auto-detects the `vercel.json` configuration.
 ├── package.json
 │
 ├── db/
-│   ├── database.js        # Database engine (JSON file or Vercel KV)
+│   ├── database.js        # Database engine (JSON file or Vercel Blob)
 │   └── whiskers_db.json   # Persistent data store (local dev only)
 │
 ├── middleware/

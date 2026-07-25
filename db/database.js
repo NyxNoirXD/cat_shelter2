@@ -4,23 +4,18 @@ const bcrypt = require('bcryptjs');
 
 const dbFilePath = path.join(__dirname, 'whiskers_db.json');
 
-let kv = null;
+let blobClient = null;
 try {
-  const { createClient } = require('@vercel/kv');
-  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-    kv = createClient({
-      url: process.env.KV_REST_API_URL,
-      token: process.env.KV_REST_API_TOKEN,
-    });
-  }
+  blobClient = require('@vercel/blob');
 } catch {
-  // @vercel/kv not installed — use file-based storage
+  // @vercel/blob not installed — use file-based storage
 }
 
-const USE_KV = !!kv;
-const KV_KEY = 'whiskers_db_state';
+const USE_BLOB = !!blobClient && !!process.env.BLOB_READ_WRITE_TOKEN;
+const BLOB_KEY = 'whiskers_db_state.json';
+let _blobUrl = null;
 
-// In-Memory state backed by JSON file or KV persistence
+// In-Memory state backed by JSON file or Blob persistence
 let state = {
   cats: [],
   applications: [],
@@ -40,11 +35,17 @@ function ready() {
 }
 
 async function init() {
-  if (USE_KV) {
+  if (USE_BLOB) {
     try {
-      const raw = await kv.get(KV_KEY);
-      if (raw) {
-        state = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      const { list } = blobClient;
+      const { blobs } = await list({ prefix: BLOB_KEY, limit: 1 });
+      if (blobs.length > 0) {
+        _blobUrl = blobs[0].url;
+        const res = await fetch(_blobUrl);
+        if (res.ok) {
+          const raw = await res.text();
+          state = JSON.parse(raw);
+        }
       }
       if (!state.admins) state.admins = [];
       if (!state.users) state.users = [];
@@ -53,36 +54,41 @@ async function init() {
       if (!state.cats || state.cats.length === 0) {
         seedAdmin();
         seedCats();
-        await persistToKv();
+        await persistToBlob();
       } else if (!state.admins || state.admins.length === 0) {
         seedAdmin();
-        await persistToKv();
+        await persistToBlob();
       }
     } catch (err) {
-      console.error('KV init error, falling back to empty state:', err.message);
+      console.error('Blob init error, falling back to empty state:', err.message);
     }
   } else {
     loadStateSync();
   }
 }
 
-async function persistToKv() {
-  if (!USE_KV) return;
+async function persistToBlob() {
+  if (!USE_BLOB) return;
   try {
-    await kv.set(KV_KEY, JSON.stringify(state));
+    const { put } = blobClient;
+    const blob = await put(BLOB_KEY, JSON.stringify(state), {
+      access: 'public',
+      addRandomSuffix: false,
+    });
+    _blobUrl = blob.url;
   } catch (err) {
-    console.error('KV persist error:', err.message);
+    console.error('Blob persist error:', err.message);
   }
 }
 
-function persistToKvFireAndForget() {
-  if (!USE_KV) return;
-  persistToKv().catch(err => console.error('KV persist error:', err.message));
+function persistToBlobFireAndForget() {
+  if (!USE_BLOB) return;
+  persistToBlob().catch(err => console.error('Blob persist error:', err.message));
 }
 
 // Save state to disk atomically (file-based only)
 function saveStateSync() {
-  if (USE_KV) return;
+  if (USE_BLOB) return;
   try {
     const tempPath = dbFilePath + '.tmp';
     fs.writeFileSync(tempPath, JSON.stringify(state, null, 2), 'utf8');
@@ -119,7 +125,7 @@ function seedAdmin() {
   const defaultUser = process.env.ADMIN_USERNAME;
   const defaultPass = process.env.ADMIN_PASSWORD;
   if (!defaultUser || !defaultPass) {
-    if (!USE_KV) {
+    if (!USE_BLOB) {
       console.error('FATAL: ADMIN_USERNAME and ADMIN_PASSWORD environment variables must be set for first run.');
       console.error('Add them to your .env file, then delete db/whiskers_db.json and restart.');
       process.exit(1);
@@ -128,7 +134,7 @@ function seedAdmin() {
   }
   const hash = bcrypt.hashSync(defaultPass, 12);
   state.admins = [{ id: 1, username: defaultUser, password_hash: hash, created_at: new Date().toISOString() }];
-  if (!USE_KV) saveStateSync();
+  if (!USE_BLOB) saveStateSync();
   console.log(`Admin account created for: ${defaultUser}`);
 }
 
@@ -195,13 +201,13 @@ function seedCats() {
       created_at: new Date().toISOString()
     }
   ];
-  if (!USE_KV) saveStateSync();
+  if (!USE_BLOB) saveStateSync();
   console.log('Default feline profiles seeded.');
 }
 
 function persist() {
-  if (USE_KV) {
-    persistToKvFireAndForget();
+  if (USE_BLOB) {
+    persistToBlobFireAndForget();
   } else {
     saveStateSync();
   }
