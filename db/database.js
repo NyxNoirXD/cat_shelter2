@@ -56,11 +56,13 @@ async function init() {
       if (!state.contact_inquiries) state.contact_inquiries = [];
       if (!state.admins || state.admins.length === 0) {
         seedAdmin();
-        await persistToBlob();
+        persistToBlobSync();
+        await flushBlobWrite();
       }
       if (!state.cats || state.cats.length === 0) {
         seedCats();
-        await persistToBlob();
+        persistToBlobSync();
+        await flushBlobWrite();
       }
     } catch (err) {
       console.error('Blob init error, falling back to empty state:', err.message);
@@ -70,30 +72,45 @@ async function init() {
       if (!state.cats || state.cats.length === 0) {
         seedCats();
       }
+      try {
+        persistToBlobSync();
+        await flushBlobWrite();
+      } catch { }
     }
   } else {
     loadStateSync();
   }
 }
 
-async function persistToBlob() {
+const BLOB_WRITE_RETRIES = 3;
+let _blobQueue = Promise.resolve();
+
+function persistToBlobSync() {
   if (!USE_BLOB) return;
-  try {
-    const { put } = blobClient;
-    const blob = await put(BLOB_KEY, JSON.stringify(state), {
-      access: 'private',
-      addRandomSuffix: false,
-      contentType: 'application/json',
-    });
-    _blobUrl = blob.url;
-  } catch (err) {
-    console.error('Blob persist error:', err.message);
-  }
+  _blobQueue = _blobQueue.then(async () => {
+    for (let attempt = 1; attempt <= BLOB_WRITE_RETRIES; attempt++) {
+      try {
+        const { put } = blobClient;
+        const blob = await put(BLOB_KEY, JSON.stringify(state), {
+          access: 'private',
+          addRandomSuffix: false,
+          contentType: 'application/json',
+        });
+        _blobUrl = blob.url;
+        return;
+      } catch (err) {
+        console.error(`Blob persist attempt ${attempt}/${BLOB_WRITE_RETRIES} failed:`, err.message);
+        if (attempt < BLOB_WRITE_RETRIES) {
+          await new Promise(r => setTimeout(r, 500 * attempt));
+        }
+      }
+    }
+    console.error('Blob persist failed after all retries');
+  }).catch(() => {});
 }
 
-function persistToBlobFireAndForget() {
-  if (!USE_BLOB) return;
-  persistToBlob().catch(err => console.error('Blob persist error:', err.message));
+async function flushBlobWrite() {
+  await _blobQueue;
 }
 
 // Save state to disk atomically (file-based only)
@@ -135,7 +152,9 @@ function seedAdmin() {
   const defaultUser = process.env.ADMIN_USERNAME;
   const defaultPass = process.env.ADMIN_PASSWORD;
   if (!defaultUser || !defaultPass) {
-    if (!USE_BLOB) {
+    if (USE_BLOB) {
+      console.warn('ADMIN_USERNAME and ADMIN_PASSWORD not set — skipping admin seed. Set these env vars in Vercel to create the initial admin.');
+    } else {
       console.error('FATAL: ADMIN_USERNAME and ADMIN_PASSWORD environment variables must be set for first run.');
       console.error('Add them to your .env file, then delete db/whiskers_db.json and restart.');
       process.exit(1);
@@ -217,7 +236,7 @@ function seedCats() {
 
 function persist() {
   if (USE_BLOB) {
-    persistToBlobFireAndForget();
+    persistToBlobSync();
   } else {
     saveStateSync();
   }
